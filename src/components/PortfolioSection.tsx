@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/intergration/supabase/client.ts";
 
 // Fallback static images
-import weddingImg from "@/assets/#maasai #kenya #wedding.jpg";
+import weddingImg from "@/assets/weddingk.jpg";
 import portraitImg from "@/assets/Tanzania.jpg";
 import eventImg from "@/assets/maasai.jpg";
 import lifestyleImg from "@/assets/jungle.jpg";
