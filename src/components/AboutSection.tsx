@@ -1,6 +1,6 @@
 import { motion, useMotionValue, useTransform, animate, useInView, useMotionValueEvent } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import aboutImg from "@/assets/about-photographer.jpg";
+import aboutImg from "@/assets/WhatsApp Image 2026-06-09 at 9.01.10 PM.jpeg";
 
 const Counter = ({ value, suffix = "" }: { value: number; suffix?: string }) => {
     const ref = useRef<HTMLParagraphElement>(null);
