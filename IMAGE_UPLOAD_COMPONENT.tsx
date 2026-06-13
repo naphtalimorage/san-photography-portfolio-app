@@ -32,6 +32,7 @@ export interface Photo {
     id: string;
     title: string;
     category: string;
+    image_url?: string | null;
     storage_path: string;
     sort_order: number;
     created_at: string;
@@ -121,11 +122,13 @@ export const ImageUpload = ({
                         cacheControl: "3600" // 1 hour cache
                     });
                 if (uploadError) throw uploadError;
+                const imageUrl = getPhotoUrl(path, bucketName);
 
                 // Insert record into database
                 const { error: dbError } = await supabase.from("photos").insert({
                     title: photoTitle,
                     category,
+                    image_url: imageUrl,
                     storage_path: path,
                     sort_order: photos.length + index,
                 });

@@ -19,6 +19,7 @@ export type Database = {
                     category: string
                     created_at: string
                     id: string
+                    image_url: string | null
                     sort_order: number
                     storage_path: string
                     title: string
@@ -27,6 +28,7 @@ export type Database = {
                     category: string
                     created_at?: string
                     id?: string
+                    image_url?: string | null
                     sort_order?: number
                     storage_path: string
                     title: string
@@ -35,6 +37,7 @@ export type Database = {
                     category?: string
                     created_at?: string
                     id?: string
+                    image_url?: string | null
                     sort_order?: number
                     storage_path?: string
                     title?: string

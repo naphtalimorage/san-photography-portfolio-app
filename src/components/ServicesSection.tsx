@@ -1,72 +1,23 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Camera, Heart, PartyPopper, Image as ImageIcon } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Camera, Heart, PartyPopper, Image as ImageIcon, type LucideIcon } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/intergration/supabase/client.ts";
+import type { Tables } from "@/intergration/supabase/types";
 
-const iconMap: Record<string, any> = {
+type Service = Tables<"services">;
+
+const iconMap: Record<string, LucideIcon> = {
     Heart,
     Camera,
     PartyPopper,
     ImageIcon,
 };
 
-const fallbackServices = [
-    {
-        icon_name: "Heart",
-        title: "Weddings",
-        price: "From $3,500",
-        features: [
-            "Full day coverage (up to 10 hours)",
-            "Second photographer included",
-            "400+ edited images",
-            "Online gallery & downloads",
-            "Engagement session",
-            "Wedding album (30 pages)",
-        ],
-    },
-    {
-        icon_name: "Camera",
-        title: "Portraits",
-        price: "From $800",
-        features: [
-            "2-hour session",
-            "2 outfit changes",
-            "50+ edited images",
-            "Online gallery & downloads",
-            "Professional retouching",
-            "Print-ready files",
-        ],
-    },
-    {
-        icon_name: "PartyPopper",
-        title: "Events",
-        price: "From $1,500",
-        features: [
-            "Up to 5 hours coverage",
-            "200+ edited images",
-            "Online gallery & downloads",
-            "Same-week delivery",
-            "Social media highlights",
-            "Print-ready files",
-        ],
-    },
-    {
-        icon_name: "ImageIcon",
-        title: "Lifestyle",
-        price: "From $1,200",
-        features: [
-            "3-hour on-location session",
-            "Natural light photography",
-            "75+ edited images",
-            "Online gallery & downloads",
-            "Personalized storytelling",
-            "Style consultation",
-        ],
-    },
-];
-
 const ServicesSection = () => {
-    const { data: dbServices } = useQuery({
+    const queryClient = useQueryClient();
+
+    const { data: services = [], isLoading } = useQuery<Service[]>({
         queryKey: ["services"],
         queryFn: async () => {
             const { data, error } = await supabase
@@ -78,7 +29,20 @@ const ServicesSection = () => {
         },
     });
 
-    const services = dbServices && dbServices.length > 0 ? dbServices : fallbackServices;
+    useEffect(() => {
+        const channel = supabase
+            .channel("services-section-realtime")
+            .on(
+                "postgres_changes",
+                { event: "*", schema: "public", table: "services" },
+                () => queryClient.invalidateQueries({ queryKey: ["services"] })
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [queryClient]);
 
     const scrollToContact = () => {
         document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
@@ -100,12 +64,26 @@ const ServicesSection = () => {
                     </h2>
                 </motion.div>
 
+                {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[1, 2, 3, 4].map((item) => (
+                            <div key={item} className="h-[420px] bg-card border border-border animate-pulse" />
+                        ))}
+                    </div>
+                ) : services.length === 0 ? (
+                    <div className="max-w-2xl mx-auto border border-dashed border-border bg-card p-10 text-center">
+                        <p className="font-display text-2xl text-foreground">Services are being prepared</p>
+                        <p className="mt-2 text-sm text-muted-foreground">
+                            Add service packages from the admin page to publish them here.
+                        </p>
+                    </div>
+                ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {services.map((service, i) => {
                         const Icon = iconMap[service.icon_name] || Camera;
                         return (
                             <motion.div
-                                key={service.title}
+                                key={service.id}
                                 initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -133,6 +111,7 @@ const ServicesSection = () => {
                         );
                     })}
                 </div>
+                )}
             </div>
         </section>
     );

@@ -1,12 +1,33 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash2, Upload, ArrowLeft, LogOut, GripVertical, Pencil, Plus } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { ListChecks, Palette } from "lucide-react";
+import {
+    Trash2,
+    ArrowLeft,
+    GripVertical,
+    Pencil,
+    Plus,
+    Images,
+    Upload,
+} from "lucide-react";
+
 import { toast } from "sonner";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+
 import {
     DndContext,
     closestCenter,
@@ -28,30 +49,114 @@ import PhotoEditDialog, { type Photo } from "@/components/dialog/PhotoEditDialog
 import ServiceEditDialog, { type Service } from "@/components/dialog/ServiceEditDialog";
 import { supabase } from "@/intergration/supabase/client";
 
+
 const getPublicUrl = (path?: string) => {
     if (!path) return "";
     const { data } = supabase.storage.from("portfolio").getPublicUrl(path);
     return data?.publicUrl || "";
 };
 
-const SortablePhoto = ({
-                           photo,
-                           onDelete,
-                           onEdit,
-                           onSaveTitle,
-                       }: {
+const getPhotoUrl = (photo: Pick<Photo, "storage_path" | "image_url">) => {
+    return photo.image_url || getPublicUrl(photo.storage_path);
+};
+
+type ServiceInsert = {
+    title: string;
+    price: string;
+    features: string[];
+    icon_name: string;
+    sort_order: number;
+};
+
+type UploadFile = { file: File; title: string; previewUrl: string };
+
+
+
+function SortableServiceItem({
+    service,
+    onDelete,
+    onEdit,
+}: {
+    service: Service;
+    onDelete: () => void;
+    onEdit: () => void;
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+        useSortable({ id: service.id });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 10 : undefined,
+    };
+
+    return (
+        <Card ref={setNodeRef} style={style} className="overflow-hidden rounded-lg border-border bg-card shadow-sm group">
+            <CardContent className="flex items-center gap-4 p-4">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-md cursor-grab active:cursor-grabbing text-muted-foreground"
+                    {...attributes}
+                    {...listeners}
+                >
+                    <GripVertical className="h-4 w-4" />
+                </Button>
+
+                <div className="flex-1 min-w-0">
+                    <h4 className="font-display text-lg text-foreground font-light truncate">{service.title}</h4>
+                    <p className="text-xs text-muted-foreground uppercase">{service.price}</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={onEdit}
+                        className="h-9 w-9 rounded-md text-muted-foreground hover:text-foreground"
+                    >
+                        <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={onDelete}
+                        className="h-9 w-9 rounded-md text-muted-foreground hover:text-destructive"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+function SortablePhotoCard({
+    photo,
+    onDelete,
+    onEdit,
+    onSaveTitle,
+}: {
     photo: Photo;
     onDelete: () => void;
     onEdit: () => void;
     onSaveTitle: (id: string, newTitle: string) => Promise<void>;
-}) => {
+}) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
         useSortable({ id: photo.id });
+
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [tempTitle, setTempTitle] = useState(photo.title);
     const [isSaving, setIsSaving] = useState(false);
 
-    const style = {
+    useEffect(() => {
+        setTempTitle(photo.title);
+        setIsEditingTitle(false);
+        setIsSaving(false);
+    }, [photo.id]);
+
+    const style: React.CSSProperties = {
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
@@ -74,19 +179,11 @@ const SortablePhoto = ({
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") handleTitleSave();
-        if (e.key === "Escape") {
-            setTempTitle(photo.title);
-            setIsEditingTitle(false);
-        }
-    };
-
     return (
-        <Card ref={setNodeRef} style={style} className="overflow-hidden group border-none shadow-sm bg-background rounded-none">
+        <Card ref={setNodeRef} style={style} className="overflow-hidden rounded-lg border-border bg-card shadow-sm group">
             <div className="relative aspect-[4/3] overflow-hidden">
                 <img
-                    src={getPublicUrl(photo.storage_path)}
+                    src={getPhotoUrl(photo)}
                     alt={photo.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -94,7 +191,7 @@ const SortablePhoto = ({
                     <Button
                         variant="secondary"
                         size="icon"
-                        className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 cursor-grab active:cursor-grabbing"
+                        className="h-8 w-8 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 cursor-grab active:cursor-grabbing"
                         {...attributes}
                         {...listeners}
                     >
@@ -103,7 +200,7 @@ const SortablePhoto = ({
                     <Button
                         variant="secondary"
                         size="icon"
-                        className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 delay-[50ms]"
+                        className="h-8 w-8 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 delay-[50ms]"
                         onClick={onEdit}
                     >
                         <Pencil className="h-4 w-4" />
@@ -111,13 +208,14 @@ const SortablePhoto = ({
                     <Button
                         variant="destructive"
                         size="icon"
-                        className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 delay-[100ms]"
+                        className="h-8 w-8 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 delay-[100ms]"
                         onClick={onDelete}
                     >
                         <Trash2 className="h-4 w-4" />
                     </Button>
                 </div>
             </div>
+
             <CardContent className="p-4 flex items-center justify-between">
                 <div className="flex-1 min-w-0 mr-2">
                     {isEditingTitle ? (
@@ -126,9 +224,8 @@ const SortablePhoto = ({
                             value={tempTitle}
                             onChange={(e) => setTempTitle(e.target.value)}
                             onBlur={handleTitleSave}
-                            onKeyDown={handleKeyDown}
                             disabled={isSaving}
-                            className="h-7 text-sm py-1 px-2 font-display bg-secondary/50 border-none focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-none w-full"
+                            className="h-8 rounded-md text-sm py-1 px-2 font-display bg-background border-border focus-visible:ring-1 focus-visible:ring-foreground/20 w-full"
                         />
                     ) : (
                         <p
@@ -138,37 +235,42 @@ const SortablePhoto = ({
                             {photo.title}
                         </p>
                     )}
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">{photo.category}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
+                        {photo.category}
+                    </p>
                 </div>
-                <div className={`h-1.5 w-1.5 rounded-full ${isSaving ? 'bg-amber-400 animate-pulse' : 'bg-foreground/10'}`} />
+                <div className={`h-1.5 w-1.5 rounded-full ${isSaving ? "bg-amber-400 animate-pulse" : "bg-foreground/10"}`} />
             </CardContent>
         </Card>
     );
-};
-
-const MemoSortablePhoto = React.memo(SortablePhoto);
+}
 
 const Admin = () => {
     const queryClient = useQueryClient();
-    const navigate = useNavigate();
+
+
     const [activeTab, setActiveTab] = useState("services");
+
+    // Services state
+    const [editingService, setEditingService] = useState<Service | null>(null);
+    const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
+
+    // Portfolio upload state
+    const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
     const [category, setCategory] = useState<string>("");
-    const [uploadFiles, setUploadFiles] = useState<{ file: File; title: string }[]>([]);
     const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+
     const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editSaving, setEditSaving] = useState(false);
-
-    // Services management state
-    const [editingService, setEditingService] = useState<Service | null>(null);
-    const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
-    const { data: photos = [], isLoading } = useQuery({
+    const photosQuery = useQuery({
         queryKey: ["admin-photos"],
         queryFn: async () => {
             const { data, error } = await supabase
@@ -176,11 +278,11 @@ const Admin = () => {
                 .select("*")
                 .order("sort_order", { ascending: true });
             if (error) throw error;
-            return data;
+            return data as Photo[];
         },
     });
 
-    const { data: services = [], isLoading: isServicesLoading } = useQuery({
+    const servicesQuery = useQuery({
         queryKey: ["admin-services"],
         queryFn: async () => {
             const { data, error } = await supabase
@@ -188,85 +290,12 @@ const Admin = () => {
                 .select("*")
                 .order("sort_order", { ascending: true });
             if (error) throw error;
-
-            // Seed services if table is empty
-            if (!data || data.length === 0) {
-                const defaultServices = [
-                    {
-                        title: "Weddings",
-                        price: "From $3,500",
-                        icon_name: "Heart",
-                        features: [
-                            "Full day coverage (up to 10 hours)",
-                            "Second photographer included",
-                            "400+ edited images",
-                            "Online gallery & downloads",
-                            "Engagement session",
-                            "Wedding album (30 pages)",
-                        ],
-                        sort_order: 0,
-                    },
-                    {
-                        title: "Portraits",
-                        price: "From $800",
-                        icon_name: "Camera",
-                        features: [
-                            "2-hour session",
-                            "2 outfit changes",
-                            "50+ edited images",
-                            "Online gallery & downloads",
-                            "Professional retouching",
-                            "Print-ready files",
-                        ],
-                        sort_order: 1,
-                    },
-                    {
-                        title: "Events",
-                        price: "From $1,500",
-                        icon_name: "PartyPopper",
-                        features: [
-                            "Up to 5 hours coverage",
-                            "200+ edited images",
-                            "Online gallery & downloads",
-                            "Same-week delivery",
-                            "Social media highlights",
-                            "Print-ready files",
-                        ],
-                        sort_order: 2,
-                    },
-                    {
-                        title: "Lifestyle",
-                        price: "From $1,200",
-                        icon_name: "ImageIcon",
-                        features: [
-                            "3-hour on-location session",
-                            "Natural light photography",
-                            "75+ edited images",
-                            "Online gallery & downloads",
-                            "Personalized storytelling",
-                            "Style consultation",
-                        ],
-                        sort_order: 3,
-                    },
-                ];
-
-                const { error: insertError } = await supabase
-                    .from("services")
-                    .insert(defaultServices);
-                if (insertError) throw insertError;
-
-                // Fetch again after seeding
-                const { data: seededData, error: refetchError } = await supabase
-                    .from("services")
-                    .select("*")
-                    .order("sort_order", { ascending: true });
-                if (refetchError) throw refetchError;
-                return seededData as Service[];
-            }
-
             return data as Service[];
         },
     });
+
+    const services = servicesQuery.data ?? [];
+    const photos = photosQuery.data ?? [];
 
     const serviceMutation = useMutation({
         mutationFn: async (service: Partial<Service>) => {
@@ -276,15 +305,19 @@ const Admin = () => {
                     .update(service)
                     .eq("id", editingService.id);
                 if (error) throw error;
-            } else {
-                const { error } = await supabase
-                    .from("services")
-                    .insert({
-                        ...service,
-                        sort_order: services.length,
-                    } as any);
-                if (error) throw error;
+                return;
             }
+
+            const newService: ServiceInsert = {
+                title: service.title || "",
+                price: service.price || "",
+                icon_name: service.icon_name || "Camera",
+                features: service.features || [],
+                sort_order: services.length,
+            };
+
+            const { error } = await supabase.from("services").insert(newService);
+            if (error) throw error;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin-services"] });
@@ -309,74 +342,74 @@ const Admin = () => {
 
     const reorderServicesMutation = useMutation({
         mutationFn: async (reordered: Service[]) => {
-            const updates = reordered.map((service, index) =>
-                supabase.from("services").update({ sort_order: index }).eq("id", service.id)
+            const updates = reordered.map((s, index) =>
+                supabase.from("services").update({ sort_order: index }).eq("id", s.id)
             );
             await Promise.all(updates);
         },
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["admin-services"] });
             queryClient.invalidateQueries({ queryKey: ["services"] });
         },
         onError: (err: Error) => toast.error(err.message),
     });
 
-    const handleServiceDragEnd = useCallback((event: DragEndEvent) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
+    const handleServiceDragEnd = useCallback(
+        (event: DragEndEvent) => {
+            const { active, over } = event;
+            if (!over || active.id === over.id) return;
 
-        const oldIndex = services.findIndex((s) => s.id === active.id);
-        const newIndex = services.findIndex((s) => s.id === over.id);
-        const reordered = arrayMove(services, oldIndex, newIndex);
+            const oldIndex = services.findIndex((s) => s.id === active.id);
+            const newIndex = services.findIndex((s) => s.id === over.id);
+            const reordered = arrayMove(services, oldIndex, newIndex);
 
-        queryClient.setQueryData(["admin-services"], reordered);
-        reorderServicesMutation.mutate(reordered);
-    }, [services, queryClient]);
-
-    const handleDeleteService = useCallback((service: Service) => {
-        deleteServiceMutation.mutate(service.id);
-    }, []);
-
-    const uploadMutation = useMutation({
-        mutationFn: async () => {
-            if (uploadFiles.length === 0 || !category) throw new Error("Select files and category");
-            // Check if all files have titles
-            if (uploadFiles.some(f => !f.title.trim())) throw new Error("Please ensure all photos have titles");
-
-            const uploadPromises = uploadFiles.map(async ({ file, title: photoTitle }, index) => {
-                const ext = file.name.split(".").pop();
-                const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-                const { error: uploadError } = await supabase.storage
-                    .from("portfolio")
-                    .upload(path, file, { contentType: file.type });
-                if (uploadError) throw uploadError;
-
-                const { error: dbError } = await supabase.from("photos").insert({
-                    title: photoTitle,
-                    category,
-                    storage_path: path,
-                    sort_order: photos.length + index,
-                });
-                if (dbError) throw dbError;
-            });
-
-            await Promise.all(uploadPromises);
+            queryClient.setQueryData(["admin-services"], reordered);
+            reorderServicesMutation.mutate(reordered);
         },
-        onMutate: () => setUploading(true),
-        onSettled: () => setUploading(false),
+        [services, queryClient, reorderServicesMutation]
+    );
+
+    const handleDeleteService = useCallback(
+        (service: Service) => deleteServiceMutation.mutate(service.id),
+        [deleteServiceMutation]
+    );
+
+    // Portfolio photo: reorder
+    const reorderPhotosMutation = useMutation({
+        mutationFn: async (reordered: Photo[]) => {
+            const updates = reordered.map((p, index) =>
+                supabase.from("photos").update({ sort_order: index }).eq("id", p.id)
+            );
+            const results = await Promise.all(updates);
+            const failed = results.find((r: any) => r.error);
+            if (failed?.error) throw failed.error;
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin-photos"] });
-            queryClient.invalidateQueries({ queryKey: ["portfolio-photos"] });
-            setCategory("");
-            setUploadFiles([]);
-            toast.success(`${uploadFiles.length} photo(s) uploaded successfully`);
         },
-        onError: (err: Error) => {
-            toast.error(err.message);
-        },
+        onError: (err: Error) => toast.error(err.message),
     });
 
-    const deleteMutation = useMutation({
+    const handlePhotoDragEnd = useCallback(
+        (event: DragEndEvent) => {
+            const { active, over } = event;
+            if (!over || active.id === over.id) return;
+
+            const oldIndex = photos.findIndex((p) => p.id === active.id);
+            const newIndex = photos.findIndex((p) => p.id === over.id);
+            const reordered = arrayMove(photos, oldIndex, newIndex);
+
+            queryClient.setQueryData(["admin-photos"], reordered);
+            reorderPhotosMutation.mutate(reordered);
+
+            // Also invalidate public home section
+            queryClient.invalidateQueries({ queryKey: ["portfolio-photos-home"] });
+        },
+        [photos, queryClient, reorderPhotosMutation]
+    );
+
+    // Portfolio photo: delete
+    const deletePhotoMutation = useMutation({
         mutationFn: async ({ id, storage_path }: { id: string; storage_path: string }) => {
             await supabase.storage.from("portfolio").remove([storage_path]);
             const { error } = await supabase.from("photos").delete().eq("id", id);
@@ -384,63 +417,44 @@ const Admin = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin-photos"] });
-            queryClient.invalidateQueries({ queryKey: ["portfolio-photos"] });
+            queryClient.invalidateQueries({ queryKey: ["portfolio-photos-home"] });
             toast.success("Photo deleted");
         },
         onError: (err: Error) => toast.error(err.message),
     });
 
-    const reorderMutation = useMutation({
-        mutationFn: async (reordered: Photo[]) => {
-            const updates = reordered.map((photo, index) =>
-                supabase.from("photos").update({ sort_order: index }).eq("id", photo.id)
-            );
-            const results = await Promise.all(updates);
-            const failed = results.find((r: { error: any }) => r.error);
-            if (failed?.error) throw failed.error;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["portfolio-photos"] });
-        },
-        onError: (err: Error) => toast.error(err.message),
-    });
-
-    const handleDragEnd = useCallback((event: DragEndEvent) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
-
-        const oldIndex = photos.findIndex((p: Photo) => p.id === active.id);
-        const newIndex = photos.findIndex((p: Photo) => p.id === over.id);
-        const reordered = arrayMove(photos, oldIndex, newIndex);
-
-        queryClient.setQueryData(["admin-photos"], reordered);
-        reorderMutation.mutate(reordered);
-    }, [photos, queryClient]);
-
-    const handleDeletePhoto = useCallback((photo: Photo) => {
-        deleteMutation.mutate({ id: photo.id, storage_path: photo.storage_path });
-    }, []);
+    const handleDeletePhoto = useCallback(
+        (photo: Photo) => deletePhotoMutation.mutate({ id: photo.id, storage_path: photo.storage_path }),
+        [deletePhotoMutation]
+    );
 
     const handleEditPhoto = useCallback((photo: Photo) => {
         setEditingPhoto(photo);
         setEditDialogOpen(true);
     }, []);
 
-    const handleSaveInlineTitle = async (id: string, newTitle: string) => {
-        const { error } = await supabase
-            .from("photos")
-            .update({ title: newTitle })
-            .eq("id", id);
-        
-        if (error) {
-            toast.error(error.message);
-            throw error;
-        }
-        
-        queryClient.invalidateQueries({ queryKey: ["admin-photos"] });
-        queryClient.invalidateQueries({ queryKey: ["portfolio-photos"] });
-    };
 
+    // Portfolio photo: edit title inline
+    const saveInlineTitleMutation = useMutation({
+        mutationFn: async ({ id, newTitle }: { id: string; newTitle: string }) => {
+            const { error } = await supabase.from("photos").update({ title: newTitle }).eq("id", id);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["admin-photos"] });
+            queryClient.invalidateQueries({ queryKey: ["portfolio-photos-home"] });
+        },
+        onError: (err: Error) => toast.error(err.message),
+    });
+
+    const handleSaveInlineTitle = useCallback(
+        async (id: string, newTitle: string) => {
+            await saveInlineTitleMutation.mutateAsync({ id, newTitle });
+        },
+        [saveInlineTitleMutation]
+    );
+
+    // Portfolio photo: edit dialog handlers
     const handleSaveDetails = async (id: string, newTitle: string, newCategory: string) => {
         setEditSaving(true);
         const { error } = await supabase
@@ -452,280 +466,246 @@ const Admin = () => {
             toast.error(error.message);
             return;
         }
-        queryClient.invalidateQueries({ queryKey: ["admin-photos"] });
-        queryClient.invalidateQueries({ queryKey: ["portfolio-photos"] });
         setEditDialogOpen(false);
         toast.success("Photo details updated");
+        queryClient.invalidateQueries({ queryKey: ["admin-photos"] });
+        queryClient.invalidateQueries({ queryKey: ["portfolio-photos-home"] });
     };
 
     const handleSaveCrop = async (id: string, croppedBlob: Blob) => {
         setEditSaving(true);
-        const photo = photos.find((p: Photo) => p.id === id);
-        if (!photo) return;
+        const photo = photos.find((p) => p.id === id);
+        if (!photo) {
+            setEditSaving(false);
+            return;
+        }
 
         try {
-            // Upload cropped image as new file
             const newPath = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
             const { error: uploadError } = await supabase.storage
                 .from("portfolio")
                 .upload(newPath, croppedBlob, { contentType: "image/jpeg" });
             if (uploadError) throw uploadError;
 
-            // Update DB to point to new file
+            const imageUrl = getPublicUrl(newPath);
             const { error: dbError } = await supabase
                 .from("photos")
-                .update({ storage_path: newPath })
+                .update({ storage_path: newPath, image_url: imageUrl })
                 .eq("id", id);
             if (dbError) throw dbError;
 
-            // Remove old file
             await supabase.storage.from("portfolio").remove([photo.storage_path]);
 
-            queryClient.invalidateQueries({ queryKey: ["admin-photos"] });
-            queryClient.invalidateQueries({ queryKey: ["portfolio-photos"] });
             setEditDialogOpen(false);
             toast.success("Photo cropped successfully");
-        } catch (err) {
-            toast.error((err as Error).message || "Failed to save crop");
+
+            queryClient.invalidateQueries({ queryKey: ["admin-photos"] });
+            queryClient.invalidateQueries({ queryKey: ["portfolio-photos-home"] });
+        } catch (err: any) {
+            toast.error(err?.message || "Failed to save crop");
         } finally {
             setEditSaving(false);
         }
     };
 
+    // Portfolio upload
+    const handleFilesSelected = useCallback((files: FileList | File[]) => {
+        const selectedFiles = Array.from(files);
+        if (selectedFiles.length === 0) return;
+
+        const acceptedFiles = selectedFiles.filter((file) => {
+            if (!file.type.startsWith("image/")) {
+                toast.error(`${file.name} is not an image file`);
+                return false;
+            }
+            if (file.size > 15 * 1024 * 1024) {
+                toast.error(`${file.name} is larger than 15MB`);
+                return false;
+            }
+            return true;
+        });
+
+        if (acceptedFiles.length === 0) return;
+
+        setUploadFiles((current) => [
+            ...current,
+            ...acceptedFiles.map((file) => ({
+                file,
+                previewUrl: URL.createObjectURL(file),
+                title: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ").trim(),
+            })),
+        ]);
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            uploadFiles.forEach((f) => URL.revokeObjectURL(f.previewUrl));
+        };
+    }, [uploadFiles]);
+
+    const removeUploadFile = useCallback((index: number) => {
+        setUploadFiles((current) => {
+            const next = current.filter((_, i) => i !== index);
+            return next;
+        });
+    }, []);
+
+    const uploadMutation = useMutation({
+        mutationFn: async () => {
+            if (uploadFiles.length === 0) throw new Error("Select images to upload");
+            if (!category) throw new Error("Select a category");
+
+            const maxSortBase = photos.length;
+
+            if (uploadFiles.some((f) => !f.title.trim())) {
+                throw new Error("Every image needs a title");
+            }
+
+            const uploads = uploadFiles.map(async ({ file, title }, index) => {
+                const ext = file.name.split(".").pop() || "jpg";
+                const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from("portfolio")
+                    .upload(path, file, { contentType: file.type });
+                if (uploadError) throw uploadError;
+
+                const imageUrl = getPublicUrl(path);
+
+                const { error: dbError } = await supabase.from("photos").insert({
+                    title,
+                    category,
+                    image_url: imageUrl,
+                    storage_path: path,
+                    sort_order: maxSortBase + index,
+                });
+                if (dbError) throw dbError;
+            });
+
+            await Promise.all(uploads);
+        },
+        onMutate: () => {
+            setUploading(true);
+            setUploadProgress(5);
+        },
+        onSuccess: () => {
+            setUploadProgress(100);
+            setUploadFiles([]);
+            setCategory("");
+            setUploading(false);
+            toast.success("Photos uploaded successfully");
+            queryClient.invalidateQueries({ queryKey: ["admin-photos"] });
+            queryClient.invalidateQueries({ queryKey: ["portfolio-photos-home"] });
+        },
+        onError: (err: Error) => {
+            setUploading(false);
+            toast.error(err.message);
+        },
+    });
+
+    const categories = ["Weddings", "Portraits", "Events", "Lifestyle", "Safaris"];
+
+    const missingTitleCount = uploadFiles.filter((f) => !f.title.trim()).length;
+    const canUpload = uploadFiles.length > 0 && category && missingTitleCount === 0 && !uploading;
+
     return (
-        <div className="min-h-screen bg-[#fafafa]">
-            {/* Header */}
-            <header className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border px-6 ">
-                <div className="max-w-7xl mx-auto flex items-center justify-between h-16">
-                    <div className="flex items-center gap-4">
+        <div className="min-h-screen bg-background text-foreground">
+            <header className="sticky top-0 z-40 w-full border-b border-border bg-background/90 px-4 backdrop-blur-xl sm:px-6">
+                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
                         <Link to="/">
-                            <Button variant="ghost" size="icon" className="rounded-full">
-                                <ArrowLeft className="h-5 w-5" />
+                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-md" aria-label="Back to website">
+                                <ArrowLeft className="h-4 w-4" />
                             </Button>
                         </Link>
-                        <h1 className="font-display text-2xl font-light text-foreground">
-                            Admin <span className="italic">Portal</span>
-                        </h1>
+                        <div className="min-w-0">
+                            <p className="text-[10px] font-medium uppercase text-muted-foreground">Ryan Portfolio</p>
+                            <h1 className="truncate font-display text-xl font-light text-foreground sm:text-2xl">
+                                Admin <span className="italic">Studio</span>
+                            </h1>
+                        </div>
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-muted-foreground hover:text-destructive transition-colors"
-                        onClick={async () => {
-                            await supabase.auth.signOut();
-                            navigate("/login");
-                        }}
-                    >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Sign Out
-                    </Button>
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto p-6 md:p-12 relative">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-                    <div className="sticky top-16 z-30 bg-[#fafafa] pt-4 pb-2 -mx-6 px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <TabsList className="bg-secondary/50 p-1 rounded-none border-b border-border/50">
-                            <TabsTrigger value="services" className="rounded-none data-[state=active]:bg-background">
-                                Services
-                            </TabsTrigger>
-                            <TabsTrigger value="portfolio" className="rounded-none data-[state=active]:bg-background">
-                                Portfolio
-                            </TabsTrigger>
+            <main className="mx-auto max-w-7xl space-y-8 p-4 sm:p-6 lg:p-10">
+                <section className="grid gap-4 md:grid-cols-3">
+                            <Card className="rounded-lg border-border bg-card shadow-sm">
+                                <CardContent className="flex items-center justify-between p-5">
+                                    <div>
+                                        <p className="text-[10px] font-semibold uppercase text-muted-foreground">Portfolio</p>
+                                        <p className="mt-1 font-display text-3xl font-light">{photos.length}</p>
+                                    </div>
+                                    <Images className="h-5 w-5 text-muted-foreground" />
+                                </CardContent>
+                            </Card>
+
+
+                    <Card className="rounded-lg border-border bg-card shadow-sm">
+                        <CardContent className="flex items-center justify-between p-5">
+                            <div>
+                                <p className="text-[10px] font-semibold uppercase text-muted-foreground">Services</p>
+                                <p className="mt-1 font-display text-3xl font-light">{services.length}</p>
+                            </div>
+                            <ListChecks className="h-5 w-5 text-muted-foreground" />
+                        </CardContent>
+                    </Card>
+
+                    <Card className="rounded-lg border-border bg-card shadow-sm">
+                        <CardContent className="flex items-center justify-between p-5">
+                            <div>
+                                <p className="text-[10px] font-semibold uppercase text-muted-foreground">Theme</p>
+                                <p className="mt-1 text-sm text-foreground">Light and dark ready</p>
+                            </div>
+                            <Palette className="h-5 w-5 text-muted-foreground" />
+                        </CardContent>
+                    </Card>
+                </section>
+
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <TabsList className="h-11 rounded-lg border border-border bg-card p-1">
+                            <TabsTrigger value="services" className="px-6 rounded-md">Services</TabsTrigger>
+                            <TabsTrigger value="portfolio" className="px-6 rounded-md">Portfolio</TabsTrigger>
                         </TabsList>
 
-                        {activeTab === "services" && (
+                        {activeTab === "services" ? (
                             <Button
                                 onClick={() => {
                                     setEditingService(null);
                                     setServiceDialogOpen(true);
                                 }}
-                                className="bg-foreground text-background hover:bg-foreground/90 rounded-none tracking-widest uppercase text-[10px] h-10 px-6"
+                                className="h-10 rounded-md"
                             >
-                                <Plus className="h-4 w-4 mr-2" /> Add Service
+                                <Plus className="mr-2 h-4 w-4" />
+                                Add Service
                             </Button>
-                        )}
+                        ) : null}
                     </div>
 
-                    <TabsContent value="portfolio" className="mt-0">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                            {/* Left Column: Upload */}
-                            <div className="lg:col-span-4 space-y-8">
-                                <div className="sticky top-28">
-                                    <h2 className="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-6 font-medium">Add to Collection</h2>
-                                    <Card className="border-none shadow-sm bg-background rounded-none">
-                                        <CardContent className="p-6 space-y-6">
-                                            <div className="space-y-4">
-                                                <div className="space-y-4">
-                                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Category</label>
-                                                    <select
-                                                        value={category}
-                                                        onChange={(e) => setCategory(e.target.value)}
-                                                        className="w-full h-10 bg-secondary/20 border-none px-3 text-xs focus:ring-1 focus:ring-foreground/10 outline-none"
-                                                    >
-                                                        <option value="" disabled>Select Category</option>
-                                                        <option value="Weddings">Weddings</option>
-                                                        <option value="Portraits">Portraits</option>
-                                                        <option value="Events">Events</option>
-                                                        <option value="Lifestyle">Lifestyle</option>
-                                                        <option value="Safaris">Safaris</option>
-                                                    </select>
-                                                </div>
-                                                <div className="space-y-4">
-                                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Image Files</label>
-                                                    <div className="relative group">
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            multiple
-                                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                                            onChange={(e) => {
-                                                                const newFiles = Array.from(e.target.files || []);
-                                                                setUploadFiles(newFiles.map(f => ({
-                                                                    file: f,
-                                                                    title: f.name.replace(/\.[^/.]+$/, "")
-                                                                })));
-                                                            }}
-                                                        />
-                                                        <div className="border-2 border-dashed border-muted/30 rounded-lg p-8 flex flex-col items-center justify-center text-center group-hover:border-foreground/20 transition-colors">
-                                                            <Upload className="h-6 w-6 text-muted-foreground mb-2 group-hover:text-foreground transition-colors" />
-                                                            <p className="text-xs text-muted-foreground group-hover:text-foreground transition-colors px-2">
-                                                                {uploadFiles.length > 0
-                                                                    ? `${uploadFiles.length} file(s) selected`
-                                                                    : "Click or drag images to upload"}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    {uploadFiles.length > 0 && (
-                                                        <div className="space-y-3 max-h-60 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/20">
-                                                            {uploadFiles.map((fileItem, idx) => (
-                                                                <div key={idx} className="flex items-center gap-3 space-y-0">
-                                                                    <img
-                                                                        src={URL.createObjectURL(fileItem.file)}
-                                                                        alt={fileItem.title}
-                                                                        className="h-10 w-10 object-cover rounded flex-shrink-0"
-                                                                    />
-                                                                    <div className="flex-1 min-w-0 space-y-1">
-                                                                        <span className="text-[10px] text-muted-foreground truncate block">{fileItem.file.name}</span>
-                                                                        <Input
-                                                                            placeholder="Photo Title"
-                                                                            className="h-7 text-xs bg-secondary/20 border-none rounded-none focus-visible:ring-1 focus-visible:ring-foreground/10"
-                                                                            value={fileItem.title}
-                                                                            onChange={(e) => {
-                                                                                const newFiles = [...uploadFiles];
-                                                                                newFiles[idx].title = e.target.value;
-                                                                                setUploadFiles(newFiles);
-                                                                            }}
-                                                                        />
-                                                                    </div>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
-                                                                        onClick={() => setUploadFiles(prev => prev.filter((_, i) => i !== idx))}
-                                                                    >
-                                                                        <Trash2 className="h-3 w-3" />
-                                                                    </Button>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="relative">
-                                                {uploading && (
-                                                    <div className="absolute inset-0 bg-background/60 flex items-center justify-center z-10">
-                                                        <span className="text-xs tracking-widest font-medium">Uploading...</span>
-                                                    </div>
-                                                )}
-                                                <Button
-                                                    onClick={() => uploadMutation.mutate()}
-                                                    disabled={uploadFiles.length === 0 || uploadFiles.some(f => !f.title) || !category || uploading}
-                                                    className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-none tracking-widest uppercase text-[10px] h-12 transition-all"
-                                                >
-                                                    {uploading ? "Uploading..." : "Publish to Portfolio"}
-                                                </Button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            </div>
-
-                            {/* Right Column: Grid */}
-                            <div className="lg:col-span-8">
-                                <div className="flex items-end justify-between mb-8">
-                                    <div>
-                                        <h2 className="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-1 font-medium">Gallery</h2>
-                                        <p className="text-2xl font-display text-foreground font-light">
-                                            Current <span className="italic">Collection</span> ({photos.length})
-                                        </p>
-                                    </div>
-                                    {photos.length > 0 && (
-                                        <span className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
-                                            Drag items to reorder
-                                        </span>
-                                    )}
-                                </div>
-
-                                {isLoading ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        {[1, 2, 3, 4].map((i) => (
-                                            <div key={i} className="aspect-[4/3] bg-muted animate-pulse rounded-none" />
-                                        ))}
-                                    </div>
-                                ) : photos.length === 0 ? (
-                                    <div className="bg-background rounded-none border border-dashed border-muted/30 p-20 text-center">
-                                        <p className="text-muted-foreground font-light italic">No photos yet — start by uploading your first shot 📸</p>
-                                    </div>
-                                ) : (
-                                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                                        <SortableContext items={photos.map((p: Photo) => p.id)} strategy={verticalListSortingStrategy}>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                                {photos.map((photo: Photo) => (
-                                                    <MemoSortablePhoto
-                                                        key={photo.id}
-                                                        photo={photo}
-                                                        onEdit={() => handleEditPhoto(photo)}
-                                                        onDelete={() => handleDeletePhoto(photo)}
-                                                        onSaveTitle={handleSaveInlineTitle}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </SortableContext>
-                                    </DndContext>
-                                )}
-                            </div>
-                        </div>
-                    </TabsContent>
-
                     <TabsContent value="services" className="mt-0">
-                        <div className="flex flex-col gap-6">
-                            <div className="flex items-end justify-between mb-4">
-                                <div>
-                                    <h2 className="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-1 font-medium">Services</h2>
-                                    <p className="text-2xl font-display text-foreground font-light">
-                                        Investment <span className="italic">Packages</span> ({services.length})
-                                    </p>
+                        <Card className="border-border">
+                            <CardContent className="p-6">
+                                <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                                    <div>
+                                        <p className="text-[10px] font-semibold uppercase text-muted-foreground">Services</p>
+                                        <h2 className="mt-1 font-display text-3xl font-light">
+                                            Investment <span className="italic">Packages</span>
+                                        </h2>
+                                    </div>
+                                    {services.length > 0 ? (
+                                        <span className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-[10px] uppercase text-muted-foreground">
+                                            <ListChecks className="h-4 w-4" />
+                                            Drag to reorder
+                                        </span>
+                                    ) : null}
                                 </div>
-                            </div>
 
-                            {isServicesLoading ? (
-                                <div className="space-y-4">
-                                    {[1, 2, 3].map((i) => (
-                                        <div key={i} className="h-24 bg-muted animate-pulse rounded-none" />
-                                    ))}
-                                </div>
-                            ) : services.length === 0 ? (
-                                <div className="bg-background rounded-none border border-dashed border-muted/30 p-20 text-center">
-                                    <p className="text-muted-foreground font-light italic">No services configured — add your first package to get started</p>
-                                </div>
-                            ) : (
                                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleServiceDragEnd}>
-                                    <SortableContext items={services.map((s: Service) => s.id)} strategy={verticalListSortingStrategy}>
-                                        <div className="space-y-4">
-                                            {services.map((service: Service) => (
-                                                <MemoSortableServiceItem
+                                    <SortableContext items={services.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                                        <div className="space-y-3">
+                                            {services.map((service) => (
+                                                <SortableServiceItem
                                                     key={service.id}
                                                     service={service}
                                                     onEdit={() => {
@@ -738,15 +718,127 @@ const Admin = () => {
                                         </div>
                                     </SortableContext>
                                 </DndContext>
-                            )}
-                        </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="portfolio" className="mt-0">
+                        <Card className="border-border">
+                            <CardContent className="p-6">
+                                <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+                                    <aside className="lg:col-span-4">
+                                        <div className="space-y-4">
+                                            <div>
+                                                <p className="text-[10px] font-semibold uppercase text-muted-foreground">Upload</p>
+                                                <h3 className="mt-1 font-display text-xl font-light">Add new portfolio photos</h3>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="category">Category</Label>
+                                                <Select value={category} onValueChange={setCategory}>
+                                                    <SelectTrigger id="category" className="bg-secondary/30 border-border h-12 rounded-md focus:ring-1 focus:ring-foreground/10 px-4">
+                                                        <SelectValue placeholder="Select category" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {categories.map((cat) => (
+                                                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>Images</Label>
+                                                <Input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={(e) => {
+                                                        if (e.target.files) handleFilesSelected(e.target.files);
+                                                    }}
+                                                />
+                                            </div>
+
+                                            {uploadFiles.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    <p className="text-xs text-muted-foreground">Preview</p>
+                                                    <div className="space-y-3">
+                                                        {uploadFiles.map((item, idx) => (
+                                                            <div key={item.previewUrl} className="flex items-center gap-3">
+                                                                <img src={item.previewUrl} alt={item.title} className="h-16 w-16 rounded object-cover" />
+                                                                <div className="flex-1">
+                                                                    <Input
+                                                                        value={item.title}
+                                                                        onChange={(e) => {
+                                                                            const v = e.target.value;
+                                                                            setUploadFiles((cur) => cur.map((x, i) => (i === idx ? { ...x, title: v } : x)));
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <Button variant="ghost" size="icon" onClick={() => removeUploadFile(idx)}>
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ) : null}
+
+                                            <div className="pt-2">
+                                                {uploading ? (
+                                                    <div className="space-y-2">
+                                                        <Progress value={uploadProgress} />
+                                                        <p className="text-xs text-muted-foreground">Uploading… {uploadProgress}%</p>
+                                                    </div>
+                                                ) : (
+                                                    <Button
+                                                        className="w-full"
+                                                        disabled={!canUpload}
+                                                        onClick={async () => {
+                                                            await uploadMutation.mutateAsync();
+                                                        }}
+                                                    >
+                                                        <Upload className="mr-2 h-4 w-4" />
+                                                        Upload
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </aside>
+
+                                    <section className="lg:col-span-8">
+                                        <div className="mb-4">
+                                            <p className="text-[10px] font-semibold uppercase text-muted-foreground">Current photos</p>
+                                            <h3 className="mt-1 font-display text-xl font-light">Reorder & edit</h3>
+                                        </div>
+
+                                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhotoDragEnd}>
+                                            <SortableContext items={photos.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    {photos.map((photo) => (
+                                                        <SortablePhotoCard
+                                                            key={photo.id}
+                                                            photo={photo}
+                                                            onDelete={() => handleDeletePhoto(photo)}
+                                                            onEdit={() => handleEditPhoto(photo)}
+                                                            onSaveTitle={handleSaveInlineTitle}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </SortableContext>
+                                        </DndContext>
+                                    </section>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
                 </Tabs>
             </main>
 
+
             <PhotoEditDialog
                 photo={editingPhoto}
-                imageUrl={editingPhoto ? getPublicUrl(editingPhoto.storage_path) : ""}
+                imageUrl={editingPhoto ? getPhotoUrl(editingPhoto) : ""}
                 open={editDialogOpen}
                 onOpenChange={setEditDialogOpen}
                 onSaveDetails={handleSaveDetails}
@@ -766,56 +858,5 @@ const Admin = () => {
     );
 };
 
-const SortableServiceItem = ({
-                                 service,
-                                 onDelete,
-                                 onEdit,
-                             }: {
-    service: Service;
-    onDelete: () => void;
-    onEdit: () => void;
-}) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-        useSortable({ id: service.id });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 10 : undefined,
-    };
-
-    return (
-        <Card ref={setNodeRef} style={style} className="overflow-hidden border-none shadow-sm bg-background rounded-none group">
-            <CardContent className="p-4 flex items-center gap-4">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 cursor-grab active:cursor-grabbing text-muted-foreground"
-                    {...attributes}
-                    {...listeners}
-                >
-                    <GripVertical className="h-4 w-4" />
-                </Button>
-
-                <div className="flex-1 min-w-0">
-                    <h4 className="font-display text-lg text-foreground font-light truncate">{service.title}</h4>
-                    <p className="text-xs text-muted-foreground uppercase tracking-widest">{service.price}</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={onEdit} className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                        <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={onDelete} className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
-    );
-};
-
-const MemoSortableServiceItem = React.memo(SortableServiceItem);
-
 export default Admin;
+

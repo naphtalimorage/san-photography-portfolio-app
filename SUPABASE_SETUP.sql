@@ -8,10 +8,14 @@ CREATE TABLE IF NOT EXISTS photos (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     title TEXT NOT NULL,
     category TEXT NOT NULL,
+    image_url TEXT,
     storage_path TEXT NOT NULL,
     sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- If you already created the photos table before adding image_url, run this safely.
+ALTER TABLE photos ADD COLUMN IF NOT EXISTS image_url TEXT;
 
 -- 2. Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_photos_sort_order ON photos(sort_order);

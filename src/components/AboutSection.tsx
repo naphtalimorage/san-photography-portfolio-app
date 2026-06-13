@@ -82,19 +82,19 @@ const AboutSection = () => {
                     </div>
                     <div className="flex gap-12 mt-8">
                         <div>
-                            <Counter value={12} suffix="+" />
+                            <Counter value={4} suffix="+" />
                             <p className="text-sm text-muted-foreground tracking-wide uppercase mt-1">
                                 Years Experience
                             </p>
                         </div>
                         <div>
-                            <Counter value={500} suffix="+" />
+                            <Counter value={140} suffix="+" />
                             <p className="text-sm text-muted-foreground tracking-wide uppercase mt-1">
                                 Sessions
                             </p>
                         </div>
                         <div>
-                            <Counter value={15} />
+                            <Counter value={3} />
                             <p className="text-sm text-muted-foreground tracking-wide uppercase mt-1">
                                 Awards
                             </p>

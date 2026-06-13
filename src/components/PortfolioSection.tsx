@@ -1,34 +1,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ArrowRight, ChevronLeft, ChevronRight, Shield } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/intergration/supabase/client.ts";
 
 // Fallback static images
-import weddingImg from "@/assets/weddingk.jpg";
-import portraitImg from "@/assets/Tanzania.jpg";
-import eventImg from "@/assets/maasai.jpg";
-import lifestyleImg from "@/assets/jungle.jpg";
-import hero1 from "@/assets/lake.jpg";
-import hero2 from "@/assets/tribe.jpg";
-import hero3 from "@/assets/safari.jpg";
+
 
 const categories = ["All", "Weddings", "Portraits", "Events", "Lifestyle"];
 
-const fallbackPhotos = [
-    { id: 1, src: weddingImg, category: "Weddings", title: "Garden Ceremony" },
-    { id: 2, src: portraitImg, category: "Portraits", title: "Studio Light" },
-    { id: 3, src: eventImg, category: "Events", title: "Gala Night" },
-    { id: 4, src: lifestyleImg, category: "Lifestyle", title: "Café Morning" },
-    { id: 5, src: hero1, category: "Weddings", title: "Lavender Fields" },
-    { id: 6, src: hero2, category: "Portraits", title: "Golden Hour" },
-    { id: 7, src: hero3, category: "Events", title: "Sunset Dinner" },
-];
+
 
 const getPublicUrl = (path: string) => {
     const { data } = supabase.storage.from("portfolio").getPublicUrl(path);
     return data.publicUrl;
+};
+
+const getPhotoUrl = (photo: { image_url?: string | null; storage_path: string }) => {
+    return photo.image_url || getPublicUrl(photo.storage_path);
 };
 
 const PortfolioSection = () => {
@@ -54,7 +44,7 @@ const PortfolioSection = () => {
             return {
                 photos: data.map((p) => ({
                     id: p.id,
-                    src: getPublicUrl(p.storage_path),
+                    src: getPhotoUrl(p),
                     category: p.category,
                     title: p.title,
                 })),
@@ -65,7 +55,9 @@ const PortfolioSection = () => {
 
     const dbPhotos = photosData?.photos || [];
     const totalCount = photosData?.totalCount || 0;
-    const photos = dbPhotos.length > 0 ? dbPhotos : fallbackPhotos.filter(p => active === "All" || p.category === active);
+    // Only show DB-driven photos. Fallback photos were removed to ensure the portfolio grid never shows bundled assets.
+    const photos = dbPhotos;
+
 
     const nextImage = useCallback(() => {
         if (lightbox !== null) {
@@ -169,17 +161,23 @@ const PortfolioSection = () => {
                         </AnimatePresence>
                     </motion.div>
                     
-                    {/* View All Link */}
-                    {totalCount > 20 && (
-                        <div className="flex justify-center mt-12">
+                    {/* Portfolio actions */}
+                    <div className="flex flex-wrap justify-center gap-4 mt-12">
+                        {totalCount > 20 && (
                             <Link 
                                 to="/portfolio"
                                 className="group inline-flex items-center gap-2 px-8 py-4 border border-foreground text-foreground text-sm tracking-widest uppercase hover:bg-foreground hover:text-background transition-all duration-300"
                             >
                                 View Full Portfolio <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                             </Link>
-                        </div>
-                    )}
+                        )}
+                        <Link
+                            to="/admin"
+                            className="inline-flex items-center gap-2 px-8 py-4 border border-border text-muted-foreground text-sm tracking-widest uppercase transition-all duration-300 hover:border-foreground hover:text-foreground"
+                        >
+                            <Shield size={18} /> Admin Dashboard
+                        </Link>
+                    </div>
                 </div>
             </div>
 

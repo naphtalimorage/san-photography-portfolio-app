@@ -15,6 +15,7 @@ type Photo = {
     id: string;
     title: string;
     category: string;
+    image_url?: string | null;
     storage_path: string;
     sort_order: number;
     created_at: string;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Loader2, ArrowLeft, ChevronLeft, ChevronRight, Shield } from "lucide-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/intergration/supabase/client.ts";
@@ -13,6 +13,10 @@ const PAGE_SIZE = 12;
 const getPublicUrl = (path: string) => {
     const { data } = supabase.storage.from("portfolio").getPublicUrl(path);
     return data.publicUrl;
+};
+
+const getPhotoUrl = (photo: { image_url?: string | null; storage_path: string }) => {
+    return photo.image_url || getPublicUrl(photo.storage_path);
 };
 
 const PortfolioPage = () => {
@@ -43,7 +47,7 @@ const PortfolioPage = () => {
             
             return data.map((p) => ({
                 id: p.id,
-                src: getPublicUrl(p.storage_path),
+                src: getPhotoUrl(p),
                 category: p.category,
                 title: p.title,
             }));
@@ -108,12 +112,20 @@ const PortfolioPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-12"
                     >
-                        <Link 
-                            to="/" 
-                            className="inline-flex items-center gap-2 text-sm uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-8"
-                        >
-                            <ArrowLeft size={16} /> Back Home
-                        </Link>
+                        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+                            <Link
+                                to="/"
+                                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                <ArrowLeft size={16} /> Back Home
+                            </Link>
+                            <Link
+                                to="/admin"
+                                className="inline-flex items-center gap-2 border border-border px-4 py-2 text-sm uppercase tracking-widest text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+                            >
+                                <Shield size={16} /> Admin
+                            </Link>
+                        </div>
                         <h1 className="font-display text-4xl md:text-6xl font-light text-foreground mb-4 text-left">
                             Full <span className="italic">Portfolio</span>
                         </h1>
