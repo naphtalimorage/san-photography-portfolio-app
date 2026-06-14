@@ -221,7 +221,8 @@ const PortfolioPage = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm flex items-center justify-center p-4 md:p-12"
+                        className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm flex items-center justify-center p-3 md:p-12 overflow-y-auto"
+
                         onClick={() => setLightbox(null)}
                     >
                         {/* Close button */}
@@ -261,7 +262,8 @@ const PortfolioPage = () => {
                             </div>
 
                             {/* Info Overlay */}
-                            <div className="absolute bottom-0 left-0 right-0 p-6 text-center">
+                            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-center">
+
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}

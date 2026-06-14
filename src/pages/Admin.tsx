@@ -643,7 +643,8 @@ const Admin = () => {
 
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <header className="sticky top-0 z-40 w-full border-b border-border bg-background/90 px-4 backdrop-blur-xl sm:px-6">
+            <header className="sticky top-0 z-40 w-full border-b border-border bg-background/90 px-3 sm:px-6 backdrop-blur-xl">
+
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4">
                     <div className="flex min-w-0 items-center gap-3">
                         <Link to="/">
@@ -849,6 +850,10 @@ const Admin = () => {
                                         </aside>
 
                                         <section className="lg:col-span-8">
+                                            
+
+                                    
+
                                             <div className="mb-4">
                                                 <p className="text-[10px] font-semibold uppercase text-muted-foreground">Current photos</p>
                                                 <h3 className="mt-1 font-display text-xl font-light">Reorder & edit</h3>

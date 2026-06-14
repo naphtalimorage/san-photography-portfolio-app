@@ -39,7 +39,8 @@ const HeroSection = () => {
     };
 
     return (
-        <section className="relative z-10 h-screen w-full overflow-hidden bg-background"> 
+        <section className="relative z-10 min-h-screen w-full overflow-hidden bg-background"> 
+
 
             <AnimatePresence>
                 <motion.div
@@ -113,16 +114,21 @@ const HeroSection = () => {
             {/* Navigation arrows */}
             <button
                 onClick={prev}
-                className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 text-white/60 hover:text-white transition-colors"
+                className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-20 text-white/60 hover:text-white transition-colors"
+                aria-label="Previous slide"
             >
-                <ChevronLeft size={36} />
+                <ChevronLeft size={28} className="hidden sm:block" />
+                <ChevronLeft size={22} className="sm:hidden" />
             </button>
             <button
                 onClick={next}
-                className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 text-white/60 hover:text-white transition-colors"
+                className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-20 text-white/60 hover:text-white transition-colors"
+                aria-label="Next slide"
             >
-                <ChevronRight size={36} />
+                <ChevronRight size={28} className="hidden sm:block" />
+                <ChevronRight size={22} className="sm:hidden" />
             </button>
+
 
             {/* Slide indicators */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
