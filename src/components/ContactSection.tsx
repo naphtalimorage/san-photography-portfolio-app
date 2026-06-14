@@ -4,6 +4,8 @@ import { Mail, Phone, MapPin, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/intergration/supabase/client";
+
 
 const ContactSection = () => {
     const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
@@ -11,13 +13,48 @@ const ContactSection = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validate all fields to avoid blank submissions
+        const name = form.name.trim();
+        const email = form.email.trim();
+
+        const message = form.message.trim();
+
+        if (!name || !email || !message) {
+            toast.error("Please fill in Full Name, Email Address, and Message.");
+            return;
+        }
+
+        // Basic email validation
+        const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!emailOk) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+
         setLoading(true);
-        // Simulate a small delay for better UX
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        toast.success("Thank you! I'll get back to you within 24 hours.");
-        setForm({ name: "", email: "", phone: "", message: "" });
-        setLoading(false);
+        try {
+            const { error } = await supabase.functions.invoke("send-contact-inquiry", {
+                body: {
+                    name,
+                    email,
+                    phone: form.phone.trim() || undefined,
+                    message,
+                },
+            });
+
+            if (error) throw error;
+
+            toast.success("Thank you! I'll get back to you within 24 hours.");
+            setForm({ name: "", email: "", phone: "", message: "" });
+        } catch (err) {
+            toast.error("Failed to send inquiry. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+
     };
+
 
     return (
         <section id="contact" className="section-padding bg-background relative overflow-hidden">
@@ -68,7 +105,7 @@ const ContactSection = () => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-1">Phone</p>
-                                    <p className="text-foreground font-light text-lg">+254 944 133-96 </p>
+                                    <p className="text-foreground font-light text-lg">+254 42 159 738 </p>
                                 </div>
                             </div>
 
@@ -78,7 +115,7 @@ const ContactSection = () => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-1">Based in</p>
-                                    <p className="text-foreground font-light text-lg">New York City · Worldwide</p>
+                                    <p className="text-foreground font-light text-lg">Maasai Mara</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -149,7 +186,8 @@ const ContactSection = () => {
                                 <div className="pt-4">
                                     <Button
                                         type="submit"
-                                        disabled={loading}
+                                        disabled={loading || !form.name.trim() || !form.email.trim() || !form.message.trim()}
+
                                         className="w-full h-14 bg-foreground text-background hover:bg-foreground/90 rounded-none tracking-widest uppercase text-xs group transition-all"
                                     >
                                         {loading ? "Sending..." : (

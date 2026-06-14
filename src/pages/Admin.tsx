@@ -23,6 +23,8 @@ import {
     Upload,
 } from "lucide-react";
 
+
+
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -48,6 +50,8 @@ import { CSS } from "@dnd-kit/utilities";
 import PhotoEditDialog, { type Photo } from "@/components/dialog/PhotoEditDialog";
 import ServiceEditDialog, { type Service } from "@/components/dialog/ServiceEditDialog";
 import { supabase } from "@/intergration/supabase/client";
+import AdminReelsSection from "./AdminReelsSection";
+
 
 
 const getPublicUrl = (path?: string) => {
@@ -251,7 +255,17 @@ const Admin = () => {
 
     const [activeTab, setActiveTab] = useState("services");
 
+    type VideoReel = {
+        id: string;
+        title: string;
+        storage_video_path: string;
+        storage_thumbnail_path: string;
+        thumbnail_url: string | null;
+        sort_order: number;
+    };
+
     // Services state
+
     const [editingService, setEditingService] = useState<Service | null>(null);
     const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
 
@@ -282,8 +296,25 @@ const Admin = () => {
         },
     });
 
+    // Reels query (bucket/table types are not generated yet in this repo)
+    // Intentionally fetched as `any` for now.
+    const reelsQuery = useQuery({
+        queryKey: ["admin-video-reels"],
+        queryFn: async () => {
+            const res = await (supabase as any)
+                .from("video_reels")
+                .select("id,title,storage_video_path,storage_thumbnail_path,thumbnail_url,sort_order")
+                .order("sort_order", { ascending: true });
+            if (res.error) throw res.error;
+            return (res.data ?? []) as VideoReel[];
+        },
+    });
+
+
     const servicesQuery = useQuery({
+
         queryKey: ["admin-services"],
+
         queryFn: async () => {
             const { data, error } = await supabase
                 .from("services")
@@ -296,8 +327,10 @@ const Admin = () => {
 
     const services = servicesQuery.data ?? [];
     const photos = photosQuery.data ?? [];
+    const reels = reelsQuery.data ?? []; // temporary: reels UI not yet wired in
 
     const serviceMutation = useMutation({
+
         mutationFn: async (service: Partial<Service>) => {
             if (editingService) {
                 const { error } = await supabase
@@ -603,7 +636,7 @@ const Admin = () => {
         },
     });
 
-    const categories = ["Weddings", "Portraits", "Events", "Lifestyle", "Safaris"];
+    const categories = ["Portraits", "Weddings", "Events", "Lifestyle", "Safaris"];
 
     const missingTitleCount = uploadFiles.filter((f) => !f.title.trim()).length;
     const canUpload = uploadFiles.length > 0 && category && missingTitleCount === 0 && !uploading;
@@ -619,7 +652,7 @@ const Admin = () => {
                             </Button>
                         </Link>
                         <div className="min-w-0">
-                            <p className="text-[10px] font-medium uppercase text-muted-foreground">Ryan Portfolio</p>
+                            <p className="text-[10px] font-medium uppercase text-muted-foreground">San Portfolio</p>
                             <h1 className="truncate font-display text-xl font-light text-foreground sm:text-2xl">
                                 Admin <span className="italic">Studio</span>
                             </h1>
@@ -654,20 +687,23 @@ const Admin = () => {
                     <Card className="rounded-lg border-border bg-card shadow-sm">
                         <CardContent className="flex items-center justify-between p-5">
                             <div>
-                                <p className="text-[10px] font-semibold uppercase text-muted-foreground">Theme</p>
-                                <p className="mt-1 text-sm text-foreground">Light and dark ready</p>
+                                <p className="text-[10px] font-semibold uppercase text-muted-foreground">Vedio Reels</p>
+                                <p className="mt-1 text-sm text-foreground">{reels.length}</p>
                             </div>
                             <Palette className="h-5 w-5 text-muted-foreground" />
                         </CardContent>
                     </Card>
                 </section>
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className=" flex flex-col gap-10">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
                         <TabsList className="h-11 rounded-lg border border-border bg-card p-1">
                             <TabsTrigger value="services" className="px-6 rounded-md">Services</TabsTrigger>
                             <TabsTrigger value="portfolio" className="px-6 rounded-md">Portfolio</TabsTrigger>
+                            <TabsTrigger value="reels" className="px-6 rounded-md">Reels</TabsTrigger>
                         </TabsList>
+
 
                         {activeTab === "services" ? (
                             <Button
@@ -683,157 +719,168 @@ const Admin = () => {
                         ) : null}
                     </div>
 
-                    <TabsContent value="services" className="mt-0">
-                        <Card className="border-border">
-                            <CardContent className="p-6">
-                                <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                                    <div>
-                                        <p className="text-[10px] font-semibold uppercase text-muted-foreground">Services</p>
-                                        <h2 className="mt-1 font-display text-3xl font-light">
-                                            Investment <span className="italic">Packages</span>
-                                        </h2>
+                    <div>
+                        <TabsContent value="services" className="mt-0">
+                            <Card className="border-border">
+                                <CardContent className="p-6">
+                                    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                                        <div>
+                                            <p className="text-[10px] font-semibold uppercase text-muted-foreground">Services</p>
+                                            <h2 className="mt-1 font-display text-3xl font-light">
+                                                Investment <span className="italic">Packages</span>
+                                            </h2>
+                                        </div>
+                                        {services.length > 0 ? (
+                                            <span className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-[10px] uppercase text-muted-foreground">
+                                                <ListChecks className="h-4 w-4" />
+                                                Drag to reorder
+                                            </span>
+                                        ) : null}
                                     </div>
-                                    {services.length > 0 ? (
-                                        <span className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-[10px] uppercase text-muted-foreground">
-                                            <ListChecks className="h-4 w-4" />
-                                            Drag to reorder
-                                        </span>
-                                    ) : null}
-                                </div>
 
-                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleServiceDragEnd}>
-                                    <SortableContext items={services.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-                                        <div className="space-y-3">
-                                            {services.map((service) => (
-                                                <SortableServiceItem
-                                                    key={service.id}
-                                                    service={service}
-                                                    onEdit={() => {
-                                                        setEditingService(service);
-                                                        setServiceDialogOpen(true);
-                                                    }}
-                                                    onDelete={() => handleDeleteService(service)}
-                                                />
-                                            ))}
-                                        </div>
-                                    </SortableContext>
-                                </DndContext>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-
-                    <TabsContent value="portfolio" className="mt-0">
-                        <Card className="border-border">
-                            <CardContent className="p-6">
-                                <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-                                    <aside className="lg:col-span-4">
-                                        <div className="space-y-4">
-                                            <div>
-                                                <p className="text-[10px] font-semibold uppercase text-muted-foreground">Upload</p>
-                                                <h3 className="mt-1 font-display text-xl font-light">Add new portfolio photos</h3>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="category">Category</Label>
-                                                <Select value={category} onValueChange={setCategory}>
-                                                    <SelectTrigger id="category" className="bg-secondary/30 border-border h-12 rounded-md focus:ring-1 focus:ring-foreground/10 px-4">
-                                                        <SelectValue placeholder="Select category" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {categories.map((cat) => (
-                                                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label>Images</Label>
-                                                <Input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    multiple
-                                                    onChange={(e) => {
-                                                        if (e.target.files) handleFilesSelected(e.target.files);
-                                                    }}
-                                                />
-                                            </div>
-
-                                            {uploadFiles.length > 0 ? (
-                                                <div className="space-y-2">
-                                                    <p className="text-xs text-muted-foreground">Preview</p>
-                                                    <div className="space-y-3">
-                                                        {uploadFiles.map((item, idx) => (
-                                                            <div key={item.previewUrl} className="flex items-center gap-3">
-                                                                <img src={item.previewUrl} alt={item.title} className="h-16 w-16 rounded object-cover" />
-                                                                <div className="flex-1">
-                                                                    <Input
-                                                                        value={item.title}
-                                                                        onChange={(e) => {
-                                                                            const v = e.target.value;
-                                                                            setUploadFiles((cur) => cur.map((x, i) => (i === idx ? { ...x, title: v } : x)));
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <Button variant="ghost" size="icon" onClick={() => removeUploadFile(idx)}>
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ) : null}
-
-                                            <div className="pt-2">
-                                                {uploading ? (
-                                                    <div className="space-y-2">
-                                                        <Progress value={uploadProgress} />
-                                                        <p className="text-xs text-muted-foreground">Uploading… {uploadProgress}%</p>
-                                                    </div>
-                                                ) : (
-                                                    <Button
-                                                        className="w-full"
-                                                        disabled={!canUpload}
-                                                        onClick={async () => {
-                                                            await uploadMutation.mutateAsync();
+                                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleServiceDragEnd}>
+                                        <SortableContext items={services.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                                            <div className="space-y-3">
+                                                {services.map((service) => (
+                                                    <SortableServiceItem
+                                                        key={service.id}
+                                                        service={service}
+                                                        onEdit={() => {
+                                                            setEditingService(service);
+                                                            setServiceDialogOpen(true);
                                                         }}
-                                                    >
-                                                        <Upload className="mr-2 h-4 w-4" />
-                                                        Upload
-                                                    </Button>
-                                                )}
+                                                        onDelete={() => handleDeleteService(service)}
+                                                    />
+                                                ))}
                                             </div>
-                                        </div>
-                                    </aside>
+                                        </SortableContext>
+                                    </DndContext>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
 
-                                    <section className="lg:col-span-8">
-                                        <div className="mb-4">
-                                            <p className="text-[10px] font-semibold uppercase text-muted-foreground">Current photos</p>
-                                            <h3 className="mt-1 font-display text-xl font-light">Reorder & edit</h3>
-                                        </div>
+                        <TabsContent value="portfolio" className="mt-0">
+                            <Card className="border-border">
+                                <CardContent className="p-6">
 
-                                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhotoDragEnd}>
-                                            <SortableContext items={photos.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    {photos.map((photo) => (
-                                                        <SortablePhotoCard
-                                                            key={photo.id}
-                                                            photo={photo}
-                                                            onDelete={() => handleDeletePhoto(photo)}
-                                                            onEdit={() => handleEditPhoto(photo)}
-                                                            onSaveTitle={handleSaveInlineTitle}
-                                                        />
-                                                    ))}
+                                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+                                        <aside className="lg:col-span-4">
+
+
+
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <p className="text-[10px] font-semibold uppercase text-muted-foreground">Upload</p>
+                                                    <h3 className="mt-1 font-display text-xl font-light">Add new portfolio photos</h3>
                                                 </div>
-                                            </SortableContext>
-                                        </DndContext>
-                                    </section>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
+
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="category">Category</Label>
+                                                    <Select value={category} onValueChange={setCategory}>
+                                                        <SelectTrigger id="category" className="bg-secondary/30 border-border h-12 rounded-md focus:ring-1 focus:ring-foreground/10 px-4">
+                                                            <SelectValue placeholder="Select category" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="bg-black">
+                                                            {categories.map((cat) => (
+                                                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label>Images</Label>
+                                                    <Input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        placeholder="Select images to upload"
+                                                        multiple
+                                                        onChange={(e) => {
+                                                            if (e.target.files) handleFilesSelected(e.target.files);
+                                                        }}
+                                                    />
+                                                </div>
+
+                                                {uploadFiles.length > 0 ? (
+                                                    <div className="space-y-2">
+                                                        <p className="text-xs text-muted-foreground">Preview</p>
+                                                        <div className="space-y-3">
+                                                            {uploadFiles.map((item, idx) => (
+                                                                <div key={item.previewUrl} className="flex items-center gap-3">
+                                                                    <img src={item.previewUrl} alt={item.title} className="h-16 w-16 rounded object-cover" />
+                                                                    <div className="flex-1">
+                                                                        <Input
+                                                                            value={item.title}
+                                                                            onChange={(e) => {
+                                                                                const v = e.target.value;
+                                                                                setUploadFiles((cur) => cur.map((x, i) => (i === idx ? { ...x, title: v } : x)));
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                    <Button variant="ghost" size="icon" onClick={() => removeUploadFile(idx)}>
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ) : null}
+
+                                                <div className="pt-2">
+                                                    {uploading ? (
+                                                        <div className="space-y-2">
+                                                            <Progress value={uploadProgress} />
+                                                            <p className="text-xs text-muted-foreground">Uploading… {uploadProgress}%</p>
+                                                        </div>
+                                                    ) : (
+                                                        <Button
+                                                            className="w-full border border-border bg-card hover:bg-card/90 focus:ring-1 focus:ring-foreground/10 h-10 rounded-md cursor-pointer"
+                                                            disabled={!canUpload}
+                                                            onClick={async () => {
+                                                                await uploadMutation.mutateAsync();
+                                                            }}
+                                                        >
+                                                            <Upload className="mr-2 h-4 w-4" />
+                                                            Upload {uploadFiles.length} photo{uploadFiles.length > 1 ? "s" : ""}
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </aside>
+
+                                        <section className="lg:col-span-8">
+                                            <div className="mb-4">
+                                                <p className="text-[10px] font-semibold uppercase text-muted-foreground">Current photos</p>
+                                                <h3 className="mt-1 font-display text-xl font-light">Reorder & edit</h3>
+                                            </div>
+
+                                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhotoDragEnd}>
+                                                <SortableContext items={photos.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        {photos.map((photo) => (
+                                                            <SortablePhotoCard
+                                                                key={photo.id}
+                                                                photo={photo}
+                                                                onDelete={() => handleDeletePhoto(photo)}
+                                                                onEdit={() => handleEditPhoto(photo)}
+                                                                onSaveTitle={handleSaveInlineTitle}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </SortableContext>
+                                            </DndContext>
+                                        </section>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        <TabsContent value="reels" className="mt-0">
+                            <AdminReelsSection />
+                        </TabsContent>
+                    </div>
                 </Tabs>
             </main>
+
 
 
             <PhotoEditDialog

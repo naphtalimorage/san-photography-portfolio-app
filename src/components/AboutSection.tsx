@@ -63,21 +63,18 @@ const AboutSection = () => {
                     </h2>
                     <div className="space-y-4 text-muted-foreground font-light leading-relaxed">
                         <p>
-                            With over a decade of experience capturing life's most precious
-                            moments, I bring a fine art sensibility to every shoot. My work is
-                            defined by natural light, authentic emotion, and timeless
-                            composition.
+                            SAN PHOTOGRAPHY is a photography brand based in the world-famous
+                            Maasai Mara, dedicated to capturing authentic moments,
+                            breathtaking landscapes, and the beauty of wildlife. Specializing
+                            in wildlife, nature, tourism, events, and lifestyle 
+                            photography, every image is crafted to tell a powerful story.
                         </p>
                         <p>
-                            Based in New York, I travel worldwide for destination weddings and
-                            editorial assignments. My approach is unobtrusive and
-                            documentary—I believe the best photographs happen when people
-                            forget the camera is there.
+                            With a strong eye for detail, lighting, and composition, SAN PHOTOGRAPHY transforms ordinary moments into timeless memories. From African sunsets and wildlife encounters to special events and personal portraits, each photograph reflects emotion, beauty, and professionalism.
                         </p>
                         <p>
-                            Every session is a collaboration. I take the time to understand
-                            your story, your style, and the feeling you want to remember
-                            forever.
+                           Driven by creativity and a passion for excellence, SAN PHOTOGRAPHY creates high-quality imagery that celebrates nature, adventure, and the unique stories behind every moment.
+Capturing Nature. Preserving Moments. Telling Stories.
                         </p>
                     </div>
                     <div className="flex gap-12 mt-8">

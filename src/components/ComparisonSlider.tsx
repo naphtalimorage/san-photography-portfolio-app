@@ -114,8 +114,9 @@
 
 import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import beforeImg from "@/assets/before-edit.jpg";
-import afterImg from "@/assets/after-edit.jpg";
+import beforeImg from "@/assets/before-edit.jpeg";
+import afterImg from "@/assets/after-edit.jpeg";
+
 
 const BeforeAfterSection = () => {
     const [sliderPos, setSliderPos] = useState(50);
