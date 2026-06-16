@@ -9,22 +9,34 @@ const RequireAuth = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let mounted = true;
+
+        const bootstrap = async () => {
+            const { data } = await supabase.auth.getSession();
+            if (!mounted) return;
+            setSession(data.session);
+            setLoading(false);
+        };
+
+        bootstrap();
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (_event, session) => {
-                setSession(session);
+            (_event, nextSession) => {
+                setSession(nextSession);
                 setLoading(false);
-                if (!session) navigate("/login", { replace: true });
             }
         );
 
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setLoading(false);
-            if (!session) navigate("/login", { replace: true });
-        });
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
+    }, []);
 
-        return () => subscription.unsubscribe();
-    }, [navigate]);
+    useEffect(() => {
+        if (loading) return;
+        if (!session) navigate("/login", { replace: true });
+    }, [loading, session, navigate]);
 
     if (loading) {
         return (

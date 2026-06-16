@@ -20,7 +20,7 @@ const Counter = ({ value, suffix = "" }: { value: number; suffix?: string }) => 
     }, [inView, value, count]);
 
     return (
-        <motion.p ref={ref} className="font-display text-3xl text-foreground">
+        <motion.p ref={ref} className="font-display text-2xl sm:text-3xl text-foreground">
             {displayValue}
             {suffix}
         </motion.p>
@@ -30,23 +30,26 @@ const Counter = ({ value, suffix = "" }: { value: number; suffix?: string }) => 
 const AboutSection = () => {
     return (
         <section id="about" className="section-padding bg-secondary">
-            <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 lg:gap-20 items-center">
                 <motion.div
                     initial={{ opacity: 0, x: -40 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
-                    className="relative"
+                    // Applied max-width to the wrapper so the decorative border aligns perfectly with the image on mobile
+                    className="relative max-w-sm mx-auto md:max-w-none w-full"
                 >
                     <img
                         src={aboutImg}
-                        alt="Senet Ryan - Photographer"
+                        alt="San Photography - Photographer"
                         loading="lazy"
                         width={800}
                         height={1000}
-                        className="w-full max-w-md mx-auto md:max-w-none object-cover"
+                        // Added aspect ratio to prevent layout shift and ensure consistent portrait shape
+                        className="w-full object-cover aspect-[4/5] shadow-lg"
                     />
-                    <div className="absolute -bottom-4 -right-4 w-full h-full border border-foreground/10 -z-10" />
+                    {/* Scaled down the offset on mobile for a tighter look */}
+                    <div className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 w-full h-full  -z-10" />
                 </motion.div>
 
                 <motion.div
@@ -55,44 +58,46 @@ const AboutSection = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                 >
-                    <p className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-3">
+                    <p className="text-xs sm:text-sm tracking-[0.3em] uppercase text-muted-foreground mb-3">
                         About Me
                     </p>
-                    <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mb-6">
+                    <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-foreground mb-6">
                         Hello, I'm <span className="italic">San</span>
                     </h2>
-                    <div className="space-y-4 text-muted-foreground font-light leading-relaxed">
+                    <div className="space-y-4 text-muted-foreground font-light leading-relaxed text-sm sm:text-base">
                         <p>
                             SAN PHOTOGRAPHY is a photography brand based in the world-famous
                             Maasai Mara, dedicated to capturing authentic moments,
                             breathtaking landscapes, and the beauty of wildlife. Specializing
-                            in wildlife, nature, tourism, events, and lifestyle 
+                            in wildlife, nature, tourism, events, and lifestyle
                             photography, every image is crafted to tell a powerful story.
                         </p>
                         <p>
                             With a strong eye for detail, lighting, and composition, SAN PHOTOGRAPHY transforms ordinary moments into timeless memories. From African sunsets and wildlife encounters to special events and personal portraits, each photograph reflects emotion, beauty, and professionalism.
                         </p>
                         <p>
-                           Driven by creativity and a passion for excellence, SAN PHOTOGRAPHY creates high-quality imagery that celebrates nature, adventure, and the unique stories behind every moment.
-Capturing Nature. Preserving Moments. Telling Stories.
+                            Driven by creativity and a passion for excellence, SAN PHOTOGRAPHY creates high-quality imagery that celebrates nature, adventure, and the unique stories behind every moment.
+                            Capturing Nature. Preserving Moments. Telling Stories.
                         </p>
                     </div>
-                    <div className="flex gap-12 mt-8">
+
+                    {/* Changed from flex to grid to prevent overflow on very small screens, and scaled gaps/text */}
+                    <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-8 md:mt-10">
                         <div>
                             <Counter value={4} suffix="+" />
-                            <p className="text-sm text-muted-foreground tracking-wide uppercase mt-1">
+                            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground tracking-wide uppercase mt-1">
                                 Years Experience
                             </p>
                         </div>
                         <div>
                             <Counter value={140} suffix="+" />
-                            <p className="text-sm text-muted-foreground tracking-wide uppercase mt-1">
+                            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground tracking-wide uppercase mt-1">
                                 Sessions
                             </p>
                         </div>
                         <div>
                             <Counter value={3} />
-                            <p className="text-sm text-muted-foreground tracking-wide uppercase mt-1">
+                            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground tracking-wide uppercase mt-1">
                                 Awards
                             </p>
                         </div>

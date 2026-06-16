@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, ArrowLeft, ChevronLeft, ChevronRight, Shield } from "lucide-react";
+import { X, Loader2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/intergration/supabase/client.ts";
@@ -119,12 +119,7 @@ const PortfolioPage = () => {
                             >
                                 <ArrowLeft size={16} /> Back Home
                             </Link>
-                            <Link
-                                to="/admin"
-                                className="inline-flex items-center gap-2 border border-border px-4 py-2 text-sm uppercase tracking-widest text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
-                            >
-                                <Shield size={16} /> Admin
-                            </Link>
+
                         </div>
                         <h1 className="font-display text-4xl md:text-6xl font-light text-foreground mb-4 text-left">
                             Full <span className="italic">Portfolio</span>

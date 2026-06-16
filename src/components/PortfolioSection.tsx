@@ -1,16 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, ChevronLeft, ChevronRight, Shield } from "lucide-react";
+import { X, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/intergration/supabase/client.ts";
 
-// Fallback static images
-
-
 const categories = ["All", "Weddings", "Portraits", "Events", "Lifestyle"];
-
-
 
 const getPublicUrl = (path: string) => {
     const { data } = supabase.storage.from("portfolio").getPublicUrl(path);
@@ -40,7 +35,7 @@ const PortfolioSection = () => {
 
             const { data, error, count } = await query;
             if (error) throw error;
-            
+
             return {
                 photos: data.map((p) => ({
                     id: p.id,
@@ -55,18 +50,16 @@ const PortfolioSection = () => {
 
     const dbPhotos = photosData?.photos || [];
     const totalCount = photosData?.totalCount || 0;
-    // Only show DB-driven photos. Fallback photos were removed to ensure the portfolio grid never shows bundled assets.
     const photos = dbPhotos;
 
-
     const nextImage = useCallback(() => {
-        if (lightbox !== null) {
+        if (lightbox !== null && photos.length > 0) {
             setLightbox((prev) => (prev! + 1) % photos.length);
         }
     }, [lightbox, photos.length]);
 
     const prevImage = useCallback(() => {
-        if (lightbox !== null) {
+        if (lightbox !== null && photos.length > 0) {
             setLightbox((prev) => (prev! - 1 + photos.length) % photos.length);
         }
     }, [lightbox, photos.length]);
@@ -82,6 +75,15 @@ const PortfolioSection = () => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [lightbox, nextImage, prevImage]);
 
+    useEffect(() => {
+        if (lightbox !== null) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => { document.body.style.overflow = ""; };
+    }, [lightbox]);
+
     return (
         <section id="portfolio" className="section-padding bg-background">
             <div className="max-w-7xl mx-auto">
@@ -90,25 +92,24 @@ const PortfolioSection = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
-                    className="text-center mb-16"
+                    className="text-center mb-10 md:mb-16"
                 >
-                    <p className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-3">Portfolio</p>
-                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-foreground">
+                    <p className="text-xs sm:text-sm tracking-[0.3em] uppercase text-muted-foreground mb-3">Portfolio</p>
+                    <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-foreground">
                         A Glimpse Of My <span className="italic">Lens</span>
                     </h2>
                 </motion.div>
 
                 {/* Category filters */}
-                <div className="flex flex-wrap justify-center gap-3 mb-12">
+                <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 md:mb-12">
                     {categories.map((cat) => (
                         <button
                             key={cat}
                             onClick={() => setActive(cat)}
-                            className={`text-sm tracking-widest uppercase px-5 py-2 transition-all duration-300 ${
-                                active === cat
+                            className={`text-xs sm:text-sm tracking-widest uppercase px-3 sm:px-5 py-1.5 sm:py-2 transition-all duration-300 ${active === cat
                                     ? "bg-foreground text-background"
                                     : "text-muted-foreground hover:text-foreground"
-                            }`}
+                                }`}
                         >
                             {cat}
                         </button>
@@ -117,7 +118,7 @@ const PortfolioSection = () => {
 
                 {/* Grid */}
                 <div className="w-full">
-                    <motion.div layout className="grid grid-cols-1 md:grid-cols-3 auto-rows-[300px] grid-flow-dense gap-4 mb-12">
+                    <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[250px] sm:auto-rows-[300px] grid-flow-dense gap-3 sm:gap-4 mb-8 md:mb-12">
                         <AnimatePresence mode="popLayout">
                             {photos.map((photo, i) => {
                                 const isLeft = i % 2 === 0;
@@ -130,11 +131,10 @@ const PortfolioSection = () => {
                                         viewport={{ once: true, margin: "-50px" }}
                                         exit={{ opacity: 0, scale: 0.9 }}
                                         transition={{ duration: 0.8, ease: "easeOut" }}
-                                        className={`group cursor-pointer overflow-hidden rounded-lg ${
-                                            i % 6 === 0 ? "md:col-span-2 md:row-span-2" :
-                                            i % 6 === 3 ? "md:col-span-1 md:row-span-2" :
-                                            ""
-                                        } aspect-[4/5] md:aspect-auto`}
+                                        className={`group cursor-pointer overflow-hidden rounded-lg ${i % 6 === 0 ? "md:col-span-2 md:row-span-2" :
+                                                i % 6 === 3 ? "md:row-span-2" :
+                                                    ""
+                                            } aspect-[4/5] sm:aspect-auto`}
                                         onClick={() => setLightbox(i)}
                                     >
                                         <div className="relative h-full w-full overflow-hidden">
@@ -142,14 +142,15 @@ const PortfolioSection = () => {
                                                 src={photo.src}
                                                 alt={photo.title}
                                                 loading="lazy"
+                                                decoding="async"
                                                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
-                                            <div className="absolute inset-0 transition-all duration-500 flex items-end">
-                                                <div className="p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                                    <p className="text-primary-foreground text-sm tracking-widest uppercase">
+                                            <div className="absolute inset-0 transition-all duration-500 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100">
+                                                <div className="p-4 sm:p-6">
+                                                    <p className="text-white text-xs sm:text-sm tracking-widest uppercase">
                                                         {photo.category}
                                                     </p>
-                                                    <p className="text-primary-foreground font-display text-xl mt-1">
+                                                    <p className="text-white font-display text-lg sm:text-xl mt-1 line-clamp-2">
                                                         {photo.title}
                                                     </p>
                                                 </div>
@@ -160,23 +161,19 @@ const PortfolioSection = () => {
                             })}
                         </AnimatePresence>
                     </motion.div>
-                    
-                    {/* Portfolio actions */}
-                    <div className="flex flex-wrap justify-center gap-4 mt-12">
+
+                    {/* Portfolio actions - Mobile & Desktop Optimized */}
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-12 md:mt-16 w-full pt-8 border-t border-border/50">
                         {totalCount > 20 && (
-                            <Link 
+                            <Link
                                 to="/portfolio"
-                                className="group inline-flex items-center gap-2 px-8 py-4 border border-foreground text-foreground text-sm tracking-widest uppercase hover:bg-foreground hover:text-background transition-all duration-300"
+                                className="group w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 bg-foreground text-background text-sm tracking-widest uppercase hover:opacity-90 transition-all duration-300 rounded-lg min-h-[44px]"
                             >
                                 View Full Portfolio <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                             </Link>
                         )}
-                        <Link
-                            to="/admin"
-                            className="inline-flex items-center gap-2 px-8 py-4 border border-border text-muted-foreground text-sm tracking-widest uppercase transition-all duration-300 hover:border-foreground hover:text-foreground"
-                        >
-                            <Shield size={18} /> Admin Dashboard
-                        </Link>
+
+
                     </div>
                 </div>
             </div>
@@ -188,33 +185,33 @@ const PortfolioSection = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center p-3 md:p-12 overflow-y-auto"
-
+                        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-12 overflow-hidden"
                         onClick={() => setLightbox(null)}
                     >
-                        {/* Close button */}
-                        <button 
-                            className="absolute top-6 right-6 text-foreground hover:opacity-70 transition-opacity z-50"
+                        <button
+                            className="absolute top-3 right-3 sm:top-6 sm:right-6 text-foreground/80 hover:text-foreground bg-background/50 hover:bg-background/80 backdrop-blur-sm rounded-full p-2 transition-all z-50"
                             onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
+                            aria-label="Close lightbox"
                         >
-                            <X size={32} strokeWidth={1.5} />
+                            <X size={24} className="sm:w-8 sm:h-8" strokeWidth={1.5} />
                         </button>
 
-                        {/* Navigation Arrows */}
-                        <button 
-                            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground transition-colors z-50 hidden md:block"
+                        <button
+                            className="absolute left-2 sm:left-4 lg:left-8 top-1/2 -translate-y-1/2 text-foreground/80 hover:text-foreground bg-background/50 hover:bg-background/80 backdrop-blur-sm rounded-full p-2 sm:p-3 transition-all z-50"
                             onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                            aria-label="Previous image"
                         >
-                            <ChevronLeft size={48} strokeWidth={1} />
+                            <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8" strokeWidth={1.5} />
                         </button>
-                        <button 
-                            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground transition-colors z-50 hidden md:block"
+                        <button
+                            className="absolute right-2 sm:right-4 lg:right-8 top-1/2 -translate-y-1/2 text-foreground/80 hover:text-foreground bg-background/50 hover:bg-background/80 backdrop-blur-sm rounded-full p-2 sm:p-3 transition-all z-50"
                             onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                            aria-label="Next image"
                         >
-                            <ChevronRight size={48} strokeWidth={1} />
+                            <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8" strokeWidth={1.5} />
                         </button>
 
-                        <div className="relative max-w-5xl w-full h-full flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                        <div className="relative max-w-5xl w-full h-full flex flex-col items-center justify-center px-12 sm:px-16 md:px-20" onClick={(e) => e.stopPropagation()}>
                             <div className="relative w-full h-full flex items-center justify-center">
                                 <motion.img
                                     key={lightbox}
@@ -228,19 +225,17 @@ const PortfolioSection = () => {
                                 />
                             </div>
 
-                            {/* Info Overlay */}
-                            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-center">
-
+                            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-center bg-gradient-to-t from-background/90 via-background/60 to-transparent pointer-events-none">
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     key={`info-${lightbox}`}
                                     transition={{ delay: 0.2 }}
                                 >
-                                    <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-1">
+                                    <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-muted-foreground mb-1">
                                         {photos[lightbox]?.category} — {lightbox + 1} / {photos.length}
                                     </p>
-                                    <h3 className="font-display text-2xl font-light text-foreground">
+                                    <h3 className="font-display text-xl sm:text-2xl font-light text-foreground line-clamp-1">
                                         {photos[lightbox]?.title}
                                     </h3>
                                 </motion.div>

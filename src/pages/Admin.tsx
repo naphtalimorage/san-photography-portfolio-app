@@ -697,12 +697,13 @@ const Admin = () => {
                 </section>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className=" flex flex-col gap-10">
+
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-                        <TabsList className="h-11 rounded-lg border border-border bg-card p-1">
-                            <TabsTrigger value="services" className="px-6 rounded-md">Services</TabsTrigger>
-                            <TabsTrigger value="portfolio" className="px-6 rounded-md">Portfolio</TabsTrigger>
-                            <TabsTrigger value="reels" className="px-6 rounded-md">Reels</TabsTrigger>
+                        <TabsList className="h-11 rounded-lg border border-border bg-card p-1 overflow-x-auto sm:overflow-visible">
+                            <TabsTrigger value="services" className="px-4 sm:px-6 rounded-md whitespace-nowrap">Services</TabsTrigger>
+                            <TabsTrigger value="portfolio" className="px-4 sm:px-6 rounded-md whitespace-nowrap">Portfolio</TabsTrigger>
+                            <TabsTrigger value="reels" className="px-4 sm:px-6 rounded-md whitespace-nowrap">Reels</TabsTrigger>
                         </TabsList>
 
 
@@ -778,7 +779,7 @@ const Admin = () => {
                                                 <div className="space-y-2">
                                                     <Label htmlFor="category">Category</Label>
                                                     <Select value={category} onValueChange={setCategory}>
-                                                        <SelectTrigger id="category" className="bg-secondary/30 border-border h-12 rounded-md focus:ring-1 focus:ring-foreground/10 px-4">
+                                                        <SelectTrigger id="category" className="w-full bg-secondary/30 border-border h-12 rounded-md focus:ring-1 focus:ring-foreground/10 px-4">
                                                             <SelectValue placeholder="Select category" />
                                                         </SelectTrigger>
                                                         <SelectContent className="bg-black">
@@ -796,6 +797,7 @@ const Admin = () => {
                                                         accept="image/*"
                                                         placeholder="Select images to upload"
                                                         multiple
+                                                        className="w-full"
                                                         onChange={(e) => {
                                                             if (e.target.files) handleFilesSelected(e.target.files);
                                                         }}
