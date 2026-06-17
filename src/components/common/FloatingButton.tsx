@@ -30,7 +30,7 @@ const WhatsAppGlyph = ({ size = 24 }: { size?: number }) => {
 const FloatingButton = () => {
     return (
         <motion.a
-            href="https://wa.me/0742159738"
+            href="https://wa.me/254742159738?text=Hello%20SAN%20Photography,%20I'd%20like%20to%20inquire%20about%20your%20services."
             target="_blank"
             rel="noopener noreferrer"
             initial={{ scale: 0 }}
