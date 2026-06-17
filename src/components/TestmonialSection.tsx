@@ -4,21 +4,21 @@ import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 
 const testimonials = [
     {
-        name: "Sarah & James",
-        role: "Wedding Clients",
-        text: "Senet captured our wedding day with such artistry and grace. Every image tells a story, and we relive that magical day every time we look through our gallery. She made us feel completely at ease.",
+        name: "Tom Rakwa",
+        role: "Portrait Clients",
+        text: "Broman,,,, you will kill me,,, your services are amazing and satisfying 💖💖🔥🔥",
         rating: 5,
     },
     {
-        name: "Marcus Chen",
+        name: "Warrior Adventure",
         role: "Portrait Client",
-        text: "I've never felt more comfortable in front of a camera. Senet has an incredible ability to bring out your natural self. The portraits she delivered exceeded every expectation I had.",
+        text: "photographer to recommend for the community 🥰🥰",
         rating: 5,
     },
     {
         name: "Olivia & David",
         role: "Engagement Session",
-        text: "Working with Senet was an absolute dream. Her eye for light and composition is unmatched. She turned a simple afternoon walk into the most beautiful engagement photos we could have imagined.",
+        text: "Working with Sanare was an absolute dream. Her eye for light and composition is unmatched. She turned a simple afternoon walk into the most beautiful engagement photos we could have imagined.",
         rating: 5,
     },
 ];

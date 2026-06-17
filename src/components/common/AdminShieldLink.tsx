@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/intergration/supabase/client";
 
 const AdminShieldLink = () => {
-  const [hasSession, setHasSession] = useState(false);
+  const [hasSession, setHasSession] = useState<boolean | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -27,11 +27,19 @@ const AdminShieldLink = () => {
     };
   }, []);
 
-  if (!hasSession) return (
-    <span className="inline-flex items-center justify-center p-2 rounded-md border border-border/60 bg-background/50 opacity-50 select-none" aria-hidden="true">
-      <Shield size={18} />
-    </span>
-  );
+  // If we don't know yet, still render a real Link so it works reliably on initial load.
+  const isReadyToDisable = hasSession === false;
+
+  if (isReadyToDisable) {
+    return (
+      <span
+        className="inline-flex items-center justify-center p-2 rounded-md border border-border/60 bg-background/50 opacity-50 select-none"
+        aria-hidden="true"
+      >
+        <Shield size={18} />
+      </span>
+    );
+  }
 
   return (
     <Link
@@ -45,4 +53,5 @@ const AdminShieldLink = () => {
 };
 
 export default AdminShieldLink;
+
 

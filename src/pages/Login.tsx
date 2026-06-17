@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import hero2 from "@/assets/hero-2.jpg";
+import hero2 from "@/assets/WhatsApp Image 2026-06-09 at 9.01.10 PM.jpeg";
 
 const Login = () => {
     const navigate = useNavigate();
