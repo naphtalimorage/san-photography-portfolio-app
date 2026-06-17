@@ -659,6 +659,16 @@ const Admin = () => {
                             </h1>
                         </div>
                     </div>
+
+                    <Button
+                        variant="outline"
+                        onClick={async () => {
+                            await supabase.auth.signOut();
+                        }}
+                        className="h-10 rounded-md"
+                    >
+                        Log out
+                    </Button>
                 </div>
             </header>
 

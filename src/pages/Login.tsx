@@ -14,6 +14,8 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -83,20 +85,31 @@ const Login = () => {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-xs uppercase tracking-widest text-muted-foreground font-medium">Password</label>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground transition-all h-12"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className="bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground transition-all h-12 pr-10"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                    {/* View/Hide toggle */}
+                                    <button
+                                        type="button"
+                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                        className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors"
+                                        onClick={() => setShowPassword((s) => !s)}
+                                    >
+                                        {showPassword ? "Hide" : "Show"}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
                         <Button
                             type="submit"
-                            className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 rounded-none tracking-widest uppercase text-xs transition-all"
+                            className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 rounded-none tracking-widest uppercase text-xs transition-all shadow-sm hover:shadow-md focus-visible:ring-2 focus-visible:ring-foreground/30 disabled:opacity-60 disabled:cursor-not-allowed"
                             disabled={loading}
                         >
                             {loading ? "Signing in..." : "Sign In"}
