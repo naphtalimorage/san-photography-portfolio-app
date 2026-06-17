@@ -665,7 +665,7 @@ const Admin = () => {
                         onClick={async () => {
                             await supabase.auth.signOut();
                         }}
-                        className="h-10 rounded-md"
+                        className="h-10 rounded-md cursor-pointer border-border text-muted-foreground hover:text-foreground active:scale-95 transition-transform"
                     >
                         Log out
                     </Button>

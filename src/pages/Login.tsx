@@ -109,7 +109,7 @@ const Login = () => {
 
                         <Button
                             type="submit"
-                            className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 rounded-none tracking-widest uppercase text-xs transition-all shadow-sm hover:shadow-md focus-visible:ring-2 focus-visible:ring-foreground/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="h-10 w-full rounded-md cursor-pointer border-border text-muted-foreground hover:text-foreground active:scale-95 transition-transform"
                             disabled={loading}
                         >
                             {loading ? "Signing in..." : "Sign In"}
