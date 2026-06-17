@@ -88,7 +88,7 @@ const Login = () => {
                                 <div className="relative">
                                     <Input
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="••••••••"
+                                        placeholder="password"
                                         className="bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground transition-all h-12 pr-10"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
