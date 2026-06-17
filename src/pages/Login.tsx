@@ -4,7 +4,7 @@ import { supabase } from "@/intergration/supabase/client.ts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import hero2 from "@/assets/WhatsApp Image 2026-06-09 at 9.01.10 PM.jpeg";
@@ -101,7 +101,7 @@ const Login = () => {
                                         className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors"
                                         onClick={() => setShowPassword((s) => !s)}
                                     >
-                                        {showPassword ? "Hide" : "Show"}
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
                             </div>
