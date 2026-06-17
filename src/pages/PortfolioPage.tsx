@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/intergration/supabase/client.ts";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import SmartImage from "@/components/common/SmartImage";
+
 
 const categories = ["All", "Weddings", "Portraits", "Events", "Lifestyle", "Safaris"];
 const PAGE_SIZE = 12;
@@ -168,12 +170,13 @@ const PortfolioPage = () => {
                                         onClick={() => setLightbox(i)}
                                     >
                                         <div className="relative h-full w-full overflow-hidden">
-                                            <img
+                                            <SmartImage
                                                 src={photo.src}
                                                 alt={photo.title}
                                                 loading="lazy"
-                                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                className="transition-transform duration-700 group-hover:scale-110"
                                             />
+
                                             <div className="absolute inset-0 transition-all duration-500 flex items-end">
                                                 <div className="p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                                     <p className="text-primary-foreground text-sm tracking-widest uppercase">
@@ -244,16 +247,24 @@ const PortfolioPage = () => {
 
                         <div className="relative max-w-5xl w-full h-full flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
                             <div className="relative w-full h-full flex items-center justify-center">
-                                <motion.img
+                                <motion.div
                                     key={lightbox}
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     transition={{ duration: 0.3 }}
-                                    src={photos[lightbox]?.src}
-                                    alt={photos[lightbox]?.title}
-                                    className="max-w-full max-h-full object-contain shadow-2xl"
-                                />
+                                    className="max-w-full max-h-full w-full h-full shadow-2xl"
+                                >
+                                    <SmartImage
+                                        src={photos[lightbox]?.src}
+                                        alt={photos[lightbox]?.title}
+                                        loading="eager"
+                                        priority
+                                        className="!h-full !w-full object-contain"
+                                        style={{ objectFit: "contain" }}
+                                    />
+                                </motion.div>
+
                             </div>
 
                             {/* Info Overlay */}

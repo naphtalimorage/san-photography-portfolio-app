@@ -162,7 +162,7 @@ const ContactSection = () => {
                                     <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium group-focus-within:text-foreground transition-colors">Phone Number (Optional)</label>
                                     <input
                                         type="tel"
-                                        placeholder="+1 (555) 000-0000"
+                                        placeholder="+254 70 0000-000"
                                         maxLength={20}
                                         value={form.phone}
                                         onChange={(e) => setForm({ ...form, phone: e.target.value })}

@@ -1,10 +1,23 @@
 # TODO
 
-## Contact form: send email via Supabase Edge Function
-- [x] Wire `src/components/ContactSection.tsx` to call Supabase Edge Function `send-contact-inquiry`
+- [x] Improve portfolio image loading UX by adding `SmartImage` component (skeleton/blur-up + fade-in + fetchpriority option)
 
-- [ ] Show success toast only when the function returns success
-- [ ] Show error toast when the function fails
-- [ ] (Follow-up) Ensure Supabase secrets exist: `RESEND_API_KEY` (+ optional `RESEND_FROM`)
-- [ ] (Follow-up) Deploy Edge Function if needed and test submission
+- [ ] Replace photo `<img>` usage in:
+  - [x] `src/components/PortfolioSection.tsx`
+  - [x] `src/pages/PortfolioPage.tsx`
+
+
+
+- [x] Add `fetchPriority="high"` for lightbox images / above-the-fold thumbnails where appropriate
+
+- [x] Update favicon to use the same mark as `src/components/common/Logo.tsx`
+
+
+- [x] Verify by running dev build and checking:
+
+
+  - [x] Grid images fade in smoothly
+  - [x] Lightbox images load without jarring layout shifts
+  - [x] Browser tab favicon updated
+
 

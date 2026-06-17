@@ -4,6 +4,8 @@ import { X, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/intergration/supabase/client.ts";
+import SmartImage from "./common/SmartImage";
+
 
 const categories = ["All", "Weddings", "Portraits", "Events", "Lifestyle"];
 
@@ -138,13 +140,13 @@ const PortfolioSection = () => {
                                         onClick={() => setLightbox(i)}
                                     >
                                         <div className="relative h-full w-full overflow-hidden">
-                                            <img
+                                            <SmartImage
                                                 src={photo.src}
                                                 alt={photo.title}
                                                 loading="lazy"
-                                                decoding="async"
-                                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                className="transition-transform duration-700 group-hover:scale-110"
                                             />
+
                                             <div className="absolute inset-0 transition-all duration-500 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100">
                                                 <div className="p-4 sm:p-6">
                                                     <p className="text-white text-xs sm:text-sm tracking-widest uppercase">
@@ -213,16 +215,24 @@ const PortfolioSection = () => {
 
                         <div className="relative max-w-5xl w-full h-full flex flex-col items-center justify-center px-12 sm:px-16 md:px-20" onClick={(e) => e.stopPropagation()}>
                             <div className="relative w-full h-full flex items-center justify-center">
-                                <motion.img
-                                    key={lightbox}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    transition={{ duration: 0.3 }}
-                                    src={photos[lightbox]?.src}
-                                    alt={photos[lightbox]?.title}
-                                    className="max-w-full max-h-full object-contain shadow-2xl"
-                                />
+                                    <motion.div
+                                        key={lightbox}
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="max-w-full max-h-full w-full h-full shadow-2xl"
+                                    >
+                                        <SmartImage
+                                            src={photos[lightbox]?.src}
+                                            alt={photos[lightbox]?.title}
+                                            loading="eager"
+                                            priority
+                                            className="!h-full !w-full object-contain"
+                                            style={{ objectFit: "contain" }}
+                                        />
+                                    </motion.div>
+
                             </div>
 
                             <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-center bg-gradient-to-t from-background/90 via-background/60 to-transparent pointer-events-none">
