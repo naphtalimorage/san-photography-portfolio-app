@@ -1,57 +1,33 @@
-import { useEffect, useState } from "react";
 import { Shield } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/intergration/supabase/client";
 
 const AdminShieldLink = () => {
-  const [hasSession, setHasSession] = useState<boolean | null>(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    let mounted = true;
+  const handleClick = async () => {
+    const { data } = await supabase.auth.getSession();
 
-    const bootstrap = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!mounted) return;
-      setHasSession(!!data.session);
-    };
-
-    bootstrap();
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setHasSession(!!session);
-    });
-
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
-
-  // If we don't know yet, still render a real Link so it works reliably on initial load.
-  const isReadyToDisable = hasSession === false;
-
-  if (isReadyToDisable) {
-    return (
-      <span
-        className="inline-flex items-center justify-center p-2 rounded-md border border-border/60 bg-background/50 opacity-50 select-none"
-        aria-hidden="true"
-      >
-        <Shield size={18} />
-      </span>
-    );
-  }
+    if (data.session) {
+      navigate("/admin");
+    } else {
+      navigate("/login");
+    }
+  };
 
   return (
-    <Link
-      to="/admin"
+    <button
+      type="button"
+      onClick={handleClick}
       aria-label="Admin dashboard"
       className="inline-flex items-center justify-center p-2 rounded-md border border-border/60 bg-background/70 hover:bg-background transition-colors hover:cursor-pointer"
     >
       <Shield size={18} />
-    </Link>
+    </button>
   );
 };
 
 export default AdminShieldLink;
+
 
 
