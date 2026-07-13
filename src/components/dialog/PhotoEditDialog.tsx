@@ -12,7 +12,7 @@ import { supabase } from "@/intergration/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
-const CATEGORIES = ["Big Cats", "Great Migration", "Landscapes", "People & Culture"] as const;
+const CATEGORIES = ["Events","Weddings","Big Cats", "Great Migration", "Landscapes", "People & Culture"] as const;
 
 type Photo = {
     id: string ;
