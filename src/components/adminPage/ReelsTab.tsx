@@ -96,13 +96,13 @@ function SortableReelCard({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="group bg-savanna-charcoal/30 border border-border/30 overflow-hidden hover:border-savanna-gold/50 transition-all duration-300"
+className="group bg-secondary/30 border border-border/30 overflow-hidden hover:border-border/60 transition-all duration-300"
             onClick={() => setShowActions(!showActions)}
         >
             <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4">
                 {/* Drag Handle - Always visible on mobile */}
                 <button
-                    className="p-1.5 md:p-2 text-savanna-gold md:text-muted-foreground md:hover:text-savanna-gold transition-colors cursor-grab active:cursor-grabbing flex-shrink-0"
+className="p-1.5 md:p-2 text-foreground/80 md:text-muted-foreground md:hover:text-foreground transition-colors cursor-grab active:cursor-grabbing flex-shrink-0"
                     {...attributes}
                     {...listeners}
                     aria-label="Drag to reorder"
@@ -115,15 +115,15 @@ function SortableReelCard({
                     {thumbnailUrl ? (
                         <img src={thumbnailUrl} alt={reel.title} className="h-full w-full object-cover" />
                     ) : (
-                        <div className="h-full w-full bg-savanna-charcoal/50 flex items-center justify-center">
+<div className="h-full w-full bg-secondary/50 flex items-center justify-center">
                             <Film className="w-6 h-6 text-muted-foreground" />
                         </div>
                     )}
 
                     {/* Play icon overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-savanna-charcoal/30">
-                        <div className="w-8 h-8 rounded-full bg-savanna-gold/80 backdrop-blur-sm flex items-center justify-center">
-                            <div className="w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[8px] border-l-savanna-charcoal ml-0.5" />
+<div className="absolute inset-0 flex items-center justify-center bg-secondary/30">
+<div className="w-8 h-8 rounded-full bg-foreground/20 backdrop-blur-sm flex items-center justify-center">
+<div className="w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[8px] border-l-foreground/40 ml-0.5" />
                         </div>
                     </div>
                 </div>
@@ -154,7 +154,7 @@ function SortableReelCard({
                         e.stopPropagation();
                         handleDelete();
                     }}
-                    className="hidden md:block p-2 border border-border/30 text-foreground hover:bg-error hover:text-white transition-all active:scale-90"
+className="hidden md:block p-2 border border-border/30 text-foreground hover:bg-destructive hover:text-destructive-foreground transition-all active:scale-90"
                     aria-label="Delete reel"
                 >
                     <Trash2 className="w-4 h-4" />
@@ -201,7 +201,7 @@ function SortableReelCard({
                                 handleDelete();
                                 setShowActions(false);
                             }}
-                            className="flex-1 flex items-center justify-center gap-2 py-2 text-error text-[10px] uppercase tracking-widest font-bold active:scale-95 transition-transform"
+className="flex-1 flex items-center justify-center gap-2 py-2 text-destructive text-[10px] uppercase tracking-widest font-bold active:scale-95 transition-transform"
                         >
                             <Trash2 className="w-3.5 h-3.5" />
                             Delete

@@ -5,26 +5,42 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: "Cormorant Garamond", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
+  /* Existing Theme Colors */
   --color-border: hsl(var(--border));
-  --color-border-border: hsl(var(--border));
-  --color-input-input: hsl(var(--input));
-  --color-ring-ring: hsl(var(--ring));
-  --color-background-background: hsl(var(--background));
-  --color-foreground-foreground: hsl(var(--foreground));
-  --color-primary-primary: hsl(var(--primary));
-  --color-primary-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary-secondary: hsl(var(--secondary));
-  --color-secondary-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-destructive-destructive: hsl(var(--destructive));
-  --color-destructive-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-muted-muted: hsl(var(--muted));
-  --color-muted-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent-accent: hsl(var(--accent));
-  --color-accent-accent-foreground: hsl(var(--accent-foreground));
-  --color-popover-popover: hsl(var(--popover));
-  --color-popover-popover-foreground: hsl(var(--popover-foreground));
-  --color-card-card: hsl(var(--card));
-  --color-card-card-foreground: hsl(var(--card-foreground));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  /* ✅ NEW: Admin Specific Colors */
+  --color-admin-background: hsl(var(--admin-background));
+  --color-admin-foreground: hsl(var(--admin-foreground));
+  --color-admin-card: hsl(var(--admin-card));
+  --color-admin-card-foreground: hsl(var(--admin-card-foreground));
+  --color-admin-primary: hsl(var(--admin-primary));
+  --color-admin-primary-foreground: hsl(var(--admin-primary-foreground));
+  --color-admin-muted: hsl(var(--admin-muted));
+  --color-admin-muted-foreground: hsl(var(--admin-muted-foreground));
+  --color-admin-border: hsl(var(--admin-border));
+  --color-admin-accent: hsl(var(--admin-accent));
+  --color-admin-accent-foreground: hsl(var(--admin-accent-foreground));
+  --color-admin-destructive: hsl(var(--admin-destructive));
+  --color-admin-destructive-foreground: hsl(var(--admin-destructive-foreground));
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -32,61 +48,34 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
 }
 
 @layer base {
   :root {
+    /* Existing Main Site Colors */
     --background: 40 20% 97%;
     --foreground: 0 0% 8%;
-
     --card: 40 15% 95%;
     --card-foreground: 0 0% 8%;
-
     --popover: 40 20% 97%;
     --popover-foreground: 0 0% 8%;
-
     --primary: 0 0% 8%;
     --primary-foreground: 40 20% 97%;
-
     --secondary: 35 15% 90%;
     --secondary-foreground: 0 0% 8%;
-
     --muted: 35 10% 92%;
     --muted-foreground: 0 0% 40%;
-
     --accent: 30 20% 85%;
     --accent-foreground: 0 0% 8%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
     --border: 30 15% 88%;
     --input: 30 15% 88%;
     --ring: 0 0% 8%;
-
     --radius: 0.25rem;
-
     --warm: 35 30% 92%;
     --warm-foreground: 25 15% 30%;
-
     --hero-overlay: 0 0% 0%;
-
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -95,42 +84,47 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* ✅ NEW: Admin Light Mode Colors (Clean, Professional Slate/Zinc) */
+    --admin-background: 0 0% 100%;
+    --admin-foreground: 240 10% 3.9%;
+    --admin-card: 0 0% 100%;
+    --admin-card-foreground: 240 10% 3.9%;
+    --admin-primary: 240 5.9% 10%;
+    --admin-primary-foreground: 0 0% 98%;
+    --admin-muted: 240 4.8% 95.9%;
+    --admin-muted-foreground: 240 3.8% 46.1%;
+    --admin-border: 240 5.9% 90%;
+    --admin-accent: 240 4.8% 95.9%;
+    --admin-accent-foreground: 240 5.9% 10%;
+    --admin-destructive: 0 84.2% 60.2%;
+    --admin-destructive-foreground: 0 0% 98%;
   }
 
   .dark {
+    /* Existing Main Site Dark Colors */
     --background: 0 0% 6%;
     --foreground: 40 20% 93%;
-
     --card: 0 0% 9%;
     --card-foreground: 40 20% 93%;
-
     --popover: 0 0% 8%;
     --popover-foreground: 40 20% 93%;
-
     --primary: 40 20% 93%;
     --primary-foreground: 0 0% 6%;
-
     --secondary: 0 0% 12%;
     --secondary-foreground: 40 15% 90%;
-
     --muted: 0 0% 14%;
     --muted-foreground: 0 0% 55%;
-
     --accent: 0 0% 16%;
     --accent-foreground: 40 20% 93%;
-
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 98%;
-
     --border: 0 0% 16%;
     --input: 0 0% 16%;
     --ring: 40 20% 93%;
-
     --warm: 0 0% 12%;
     --warm-foreground: 40 15% 80%;
-
     --hero-overlay: 0 0% 0%;
-
     --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 240 5% 80%;
     --sidebar-primary: 40 20% 93%;
@@ -139,10 +133,23 @@
     --sidebar-accent-foreground: 40 20% 93%;
     --sidebar-border: 0 0% 16%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
 
-@layer base {
+    /* ✅ NEW: Admin Dark Mode Colors */
+    --admin-background: 240 10% 3.9%;
+    --admin-foreground: 0 0% 98%;
+    --admin-card: 240 10% 3.9%;
+    --admin-card-foreground: 0 0% 98%;
+    --admin-primary: 0 0% 98%;
+    --admin-primary-foreground: 240 5.9% 10%;
+    --admin-muted: 240 3.7% 15.9%;
+    --admin-muted-foreground: 240 5% 64.9%;
+    --admin-border: 240 3.7% 15.9%;
+    --admin-accent: 240 3.7% 15.9%;
+    --admin-accent-foreground: 0 0% 98%;
+    --admin-destructive: 0 62.8% 30.6%;
+    --admin-destructive-foreground: 0 0% 98%;
+  }
+
   * {
     border-color: hsl(var(--border));
   }
@@ -162,7 +169,6 @@
   .font-display {
     @apply font-serif;
   }
-
   .text-balance {
     text-wrap: balance;
   }
@@ -172,7 +178,6 @@
   .section-padding {
     @apply px-6 md:px-12 lg:px-24 py-20 md:py-32;
   }
-
   .hover-lift {
     @apply transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl;
   }

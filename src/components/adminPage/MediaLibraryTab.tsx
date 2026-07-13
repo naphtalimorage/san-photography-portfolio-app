@@ -120,7 +120,7 @@ function SortablePhotoCard({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="group relative overflow-hidden bg-savanna-charcoal/30 border border-border/30"
+className="group relative overflow-hidden bg-secondary/30 border border-border/30"
             onClick={() => setShowActions(!showActions)}
         >
             {/* Image Container */}
@@ -133,11 +133,11 @@ function SortablePhotoCard({
                 />
 
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-savanna-charcoal/90 via-transparent to-transparent opacity-80" />
+<div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-transparent to-transparent opacity-80" />
 
                 {/* Status Badge - Top Left */}
                 <div className="absolute top-2 left-2 z-10">
-                    <span className="bg-savanna-gold text-savanna-charcoal text-[9px] px-2 py-0.5 font-bold tracking-tighter uppercase">
+<span className="bg-secondary text-foreground text-[9px] px-2 py-0.5 font-bold tracking-tighter uppercase">
                         {photo.category}
                     </span>
                 </div>
@@ -145,7 +145,7 @@ function SortablePhotoCard({
                 {/* ✅ FIXED: Drag Handle - Desktop Only (Added type="button" and z-20) */}
                 <button
                     type="button"
-                    className="hidden md:block absolute top-2 right-2 p-1.5 bg-savanna-charcoal/80 backdrop-blur text-muted-foreground hover:text-savanna-gold transition-colors cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 z-20"
+className="hidden md:block absolute top-2 right-2 p-1.5 bg-secondary/80 backdrop-blur text-muted-foreground hover:text-foreground transition-colors cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 z-20"
                     {...attributes}
                     {...listeners}
                     aria-label="Drag to reorder"
@@ -156,7 +156,7 @@ function SortablePhotoCard({
                 {/* ✅ FIXED: Mobile: Always-visible drag handle (Added type="button" and z-20) */}
                 <button
                     type="button"
-                    className="md:hidden absolute top-2 right-2 p-1.5 bg-savanna-charcoal/80 backdrop-blur text-savanna-gold transition-colors cursor-grab active:cursor-grabbing z-20"
+className="md:hidden absolute top-2 right-2 p-1.5 bg-secondary/80 backdrop-blur text-foreground transition-colors cursor-grab active:cursor-grabbing z-20"
                     {...attributes}
                     {...listeners}
                     aria-label="Drag to reorder"
@@ -166,17 +166,17 @@ function SortablePhotoCard({
 
                 {/* Mobile: Expand icon */}
                 <div className="md:hidden absolute top-2 right-12 w-7 h-7 bg-savanna-charcoal/60 backdrop-blur-sm flex items-center justify-center z-10">
-                    <Maximize2 className="w-3 h-3 text-savanna-cream" />
+<Maximize2 className="w-3 h-3 text-foreground" />
                 </div>
 
                 {/* Desktop: Hover Action Overlay */}
-                <div className="hidden md:flex absolute inset-0 bg-savanna-charcoal/60 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center gap-3 z-10">
+<div className="hidden md:flex absolute inset-0 bg-secondary/60 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center gap-3 z-10">
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
                             onEdit();
                         }}
-                        className="w-10 h-10 bg-savanna-gold text-savanna-charcoal flex items-center justify-center hover:bg-savanna-gold/90 transition-all active:scale-90"
+className="w-10 h-10 bg-secondary text-foreground flex items-center justify-center hover:bg-secondary/90 transition-all active:scale-90"
                         aria-label="Edit photo"
                     >
                         <Edit className="w-4 h-4" />
@@ -186,7 +186,7 @@ function SortablePhotoCard({
                             e.stopPropagation();
                             handleDelete();
                         }}
-                        className="w-10 h-10 bg-error text-white flex items-center justify-center hover:bg-error/90 transition-all active:scale-90"
+className="w-10 h-10 bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-all active:scale-90"
                         aria-label="Delete photo"
                     >
                         <Trash2 className="w-4 h-4" />
@@ -207,7 +207,7 @@ function SortablePhotoCard({
                         />
                     ) : (
                         <h4
-                            className="text-savanna-cream font-display text-sm font-light truncate cursor-text hover:text-savanna-gold transition-colors"
+className="text-foreground font-display text-sm font-light truncate cursor-text hover:text-foreground transition-colors"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setIsEditingTitle(true);

@@ -84,12 +84,12 @@ function SortableServiceItem({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="group relative bg-savanna-charcoal/30 border border-border/30 overflow-hidden hover:border-savanna-gold/50 transition-all duration-500"
+className="group relative bg-secondary/30 border border-border/30 overflow-hidden hover:border-border/60 transition-all duration-500"
             onClick={() => setShowActions(!showActions)}
         >
             {/* Drag Handle - Always visible on mobile, hover on desktop */}
             <button
-                className="absolute top-3 left-3 md:top-4 md:left-4 p-1.5 md:p-2 bg-savanna-charcoal/80 backdrop-blur text-savanna-gold md:text-muted-foreground md:hover:text-savanna-gold transition-colors cursor-grab active:cursor-grabbing z-10"
+className="absolute top-3 left-3 md:top-4 md:left-4 p-1.5 md:p-2 bg-secondary/80 backdrop-blur text-foreground md:text-muted-foreground md:hover:text-foreground transition-colors cursor-grab active:cursor-grabbing z-10"
                 {...attributes}
                 {...listeners}
                 aria-label="Drag to reorder"
@@ -101,7 +101,7 @@ function SortableServiceItem({
             <div className="p-4 pl-14 md:p-6 md:pl-16">
                 <div className="flex justify-between items-start mb-3 md:mb-4">
                     <div className="flex-1 min-w-0 pr-2">
-                        <h3 className="font-display text-lg md:text-xl text-foreground group-hover:text-savanna-gold transition-colors truncate">
+<h3 className="font-display text-lg md:text-xl text-foreground group-hover:text-foreground transition-colors truncate">
                             {service.title}
                         </h3>
                         <p className="text-xs md:text-sm text-muted-foreground mt-1 truncate">
@@ -111,7 +111,7 @@ function SortableServiceItem({
 
                     {/* Desktop: More menu */}
                     <button
-                        className="hidden md:block text-muted-foreground hover:text-savanna-gold transition-colors"
+className="hidden md:block text-muted-foreground hover:text-foreground transition-colors"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <MoreVertical className="w-5 h-5" />
@@ -139,7 +139,7 @@ function SortableServiceItem({
                     <div className="mb-4 md:mb-6 space-y-1.5 md:space-y-2">
                         {service.features.slice(0, 3).map((feature, idx) => (
                             <div key={idx} className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
-                                <div className="w-1.5 h-1.5 bg-savanna-gold rounded-full flex-shrink-0" />
+<div className="w-1.5 h-1.5 bg-foreground/40 rounded-full flex-shrink-0" />
                                 <span className="truncate">{feature}</span>
                             </div>
                         ))}
@@ -154,7 +154,7 @@ function SortableServiceItem({
                 {/* Desktop: Footer with rating and actions */}
                 <div className="hidden md:flex items-center justify-between pt-4 border-t border-border/30">
                     <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-savanna-gold fill-savanna-gold" />
+<Star className="w-4 h-4 text-foreground/80 fill-foreground/80" />
                         <span className="text-xs text-foreground font-bold">4.9</span>
                         <span className="text-xs text-muted-foreground">(42 reviews)</span>
                     </div>
@@ -165,7 +165,7 @@ function SortableServiceItem({
                                 e.stopPropagation();
                                 onEdit();
                             }}
-                            className="p-2 border border-border/30 text-foreground hover:bg-savanna-gold hover:text-savanna-charcoal transition-all active:scale-95"
+className="p-2 border border-border/30 text-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-95"
                             aria-label="Edit service"
                         >
                             <Edit className="w-4 h-4" />
@@ -175,7 +175,7 @@ function SortableServiceItem({
                                 e.stopPropagation();
                                 handleDelete();
                             }}
-                            className="p-2 border border-border/30 text-foreground hover:bg-error hover:text-white transition-all active:scale-95"
+className="p-2 border border-border/30 text-foreground hover:bg-destructive hover:text-destructive-foreground transition-all active:scale-95"
                             aria-label="Delete service"
                         >
                             <Trash2 className="w-4 h-4" />
@@ -200,7 +200,7 @@ function SortableServiceItem({
                                 onEdit();
                                 setShowActions(false);
                             }}
-                            className="flex-1 flex items-center justify-center gap-2 py-2 text-savanna-gold text-[10px] uppercase tracking-widest font-bold active:scale-95 transition-transform"
+className="flex-1 flex items-center justify-center gap-2 py-2 text-foreground text-[10px] uppercase tracking-widest font-bold active:scale-95 transition-transform"
                         >
                             <Edit className="w-3.5 h-3.5" />
                             Edit
@@ -212,7 +212,7 @@ function SortableServiceItem({
                                 handleDelete();
                                 setShowActions(false);
                             }}
-                            className="flex-1 flex items-center justify-center gap-2 py-2 text-error text-[10px] uppercase tracking-widest font-bold active:scale-95 transition-transform"
+className="flex-1 flex items-center justify-center gap-2 py-2 text-destructive text-[10px] uppercase tracking-widest font-bold active:scale-95 transition-transform"
                         >
                             <Trash2 className="w-3.5 h-3.5" />
                             Delete
