@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 import { supabase } from '@/intergration/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ThemeToggle } from '@/components/common/ThemeToggle';
+import ThemeToggle  from '@/components/common/ThemeToggle';
 
 import MediaLibraryTab from '@/components/adminPage/MediaLibraryTab';
 import ServicesTab from '@/components/adminPage/ServicesTab';
